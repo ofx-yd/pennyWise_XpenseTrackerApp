@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PennyWise</title>
+
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <h1>PennyWise 💰</h1>
+        <h2>Balance: $<span id="balance">0.00</span></h2>
+    </header>
+
+    <!-- Summary -->
+    <div class="summary">
+        <div class="card income">
+            <p>Income</p>
+            <h3>$<span id="income">0.00</span></h3>
+        </div>
+
+        <div class="card expense">
+            <p>Expense</p>
+            <h3>$<span id="expense">0.00</span></h3>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-section">
+        <form id="form">
+
+            <input type="text" id="text" placeholder="Description" required>
+            <input type="number" id="amount" placeholder="Amount" required>
+            <input type="date" id="date" required>
+
+            <!-- Toggle -->
+            <div class="type-toggle">
+                <button type="button" id="incomeBtn" class="active">Income</button>
+                <button type="button" id="expenseBtn">Expense</button>
+            </div>
+
+            <select id="category" required></select>
+
+            <input type="text" id="newCategory" placeholder="Add new category">
+            <button type="button" id="addCategoryBtn">+ Add Category</button>
+
+            <button type="submit">Add Transaction</button>
+        </form>
+    </div>
+
+    <!-- Filter -->
+    <div class="list-section">
+        <h3>Filter by Month</h3>
+        <input type="month" id="monthFilter">
+    </div>
+
+    <!-- Transactions -->
+    <div class="list-section">
+        <h3>Transactions</h3>
+        <ul id="list"></ul>
+        <p id="empty" class="empty">No transactions</p>
+    </div>
+
+    <!-- Categories Manager -->
+    <div class="list-section">
+        <h3>Manage Categories</h3>
+
+        <h4>Income Categories</h4>
+        <ul id="incomeCategoryList"></ul>
+
+        <h4>Expense Categories</h4>
+        <ul id="expenseCategoryList"></ul>
+    </div>
+
+    <!-- Category Summary -->
+    <div class="list-section">
+        <h3>Income Categories</h3>
+        <div id="incomeCategories"></div>
+    </div>
+
+    <div class="list-section">
+        <h3>Expense Categories</h3>
+        <div id="expenseCategories"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-section">
+        <h3>Income Breakdown</h3>
+        <canvas id="incomeChart"></canvas>
+    </div>
+
+    <div class="chart-section">
+        <h3>Expense Breakdown</h3>
+        <canvas id="expenseChart"></canvas>
+    </div>
+
+</div>
+
+<script src="static/js/app.js"></script>
+
+</body>
+</html>

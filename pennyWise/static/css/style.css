@@ -1,0 +1,159 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #eef2f7, #e0e7ff);
+    margin: 0;
+}
+
+.app {
+    width: min(520px, 95%);
+    margin: 20px auto;
+    padding: 15px;
+}
+
+header {
+    text-align: center;
+}
+
+h2 {
+    color: #2ecc71;
+}
+
+/* Summary */
+.summary {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.card {
+    flex: 1;
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+}
+
+.income { background: #2ecc71; }
+.expense { background: #e74c3c; }
+
+/* Sections */
+.form-section,
+.list-section,
+.chart-section {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    min-height: 44px;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 10px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+/* Toggle */
+.type-toggle {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.type-toggle button {
+    flex: 1;
+    background: #ddd;
+}
+
+.type-toggle button.active {
+    background: #3498db;
+}
+
+/* Lists */
+li {
+    list-style: none;
+    background: #f9fafb;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+li.plus { border-right: 5px solid #2ecc71; }
+li.minus { border-right: 5px solid #e74c3c; }
+
+li button {
+    background: red;
+    padding: 5px;
+    border: none;
+    color: white;
+}
+
+/* Category manager */
+#incomeCategoryList li,
+#expenseCategoryList li {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    background: #f1f5f9;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* Text colors */
+#incomeCategories p { color: #2ecc71; }
+#expenseCategories p { color: #e74c3c; }
+
+.empty {
+    text-align: center;
+    color: #888;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+
+    .summary {
+        flex-direction: column;
+    }
+
+    .type-toggle {
+        flex-direction: column;
+    }
+
+    li {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    button {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+}
