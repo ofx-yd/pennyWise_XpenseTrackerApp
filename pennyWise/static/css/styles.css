@@ -1,0 +1,161 @@
+/* ================= ROOT ================= */
+:root {
+  --bg-dark: #2c2c34;
+  --bg-darker: #1f1f26;
+
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --blur: blur(18px);
+
+  --text-main: #ffffff;
+  --text-soft: #cfcfcf;
+
+  --accent: #f28b8b;
+  --accent-hover: #e57373;
+
+  --input-bg: rgba(255,255,255,0.15);
+
+  --radius: 20px;
+}
+
+/* ================= GLOBAL ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--bg-dark), var(--bg-darker));
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= HEADER ================= */
+.header {
+  width: 100%;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 34px;
+  font-weight: bold;
+  color: var(--accent);
+  background: rgba(255,255,255,0.05);
+  letter-spacing: 2px;
+}
+
+/* ================= CONTAINER ================= */
+.container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================= CARD ================= */
+.box {
+  width: 360px;
+  background: var(--card-bg);
+  backdrop-filter: var(--blur);
+  border-radius: var(--radius);
+  padding: 40px 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  color: var(--text-main);
+  position: relative;
+}
+
+/* TITLE INSIDE CARD */
+.box h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 20px;
+}
+
+/* ================= INPUT ================= */
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-soft);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: var(--input-bg);
+  color: white;
+}
+
+.input-group input::placeholder {
+  color: #ddd;
+}
+
+/* ================= PASSWORD ================= */
+.password-wrapper {
+  display: flex;
+  gap: 5px;
+}
+
+.password-wrapper button {
+  border: none;
+  border-radius: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+/* ================= BUTTON ================= */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ================= LINKS ================= */
+.extra {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.extra a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ================= MESSAGES ================= */
+.error {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.success {
+  color: #00ffae;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 400px) {
+  .box {
+    width: 90%;
+  }
+}

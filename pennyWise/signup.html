@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PennyWise Signup</title>
+  <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <div class="header">PennyWise</div>
+
+  <div class="container">
+
+    <div class="box">
+      <h2>Create Account</h2>
+
+      <form id="signupForm">
+
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email">
+          <div class="error" id="signupEmailError"></div>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signupPassword" placeholder="Enter your password">
+            <button type="button" onclick="togglePassword('signupPassword')">👁️</button>
+          </div>
+          <div class="error" id="signupPasswordError"></div>
+        </div>
+
+        <button class="btn" id="signupBtn">Sign Up</button>
+
+        <div class="success" id="signupSuccess"></div>
+
+      </form>
+
+      <div class="extra">
+        <p>Already have an account? <a href="login.html">Login</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="static/js/auth.js"></script>
+</body>
+</html>
