@@ -1,46 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Sign Up</title>
-  <link rel="stylesheet" href="static/css/styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PennyWise — Create Account</title>
+<link rel="stylesheet" href="static/css/signup.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
-<div class="container">
-  <div class="box">
-    <h2>Create Account</h2>
-
-    <form id="signupForm">
-
-      <div class="input-group">
-        <label>Email</label>
-        <input type="email" id="signupEmail">
-        <div class="error" id="signupEmailError"></div>
-      </div>
-
-      <div class="input-group">
-        <label>Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="signupPassword">
-          <button type="button" onclick="togglePassword('signupPassword')">👁</button>
-        </div>
-        <div class="error" id="signupPasswordError"></div>
-      </div>
-
-      <button class="btn" id="signupBtn">Sign Up</button>
-
-      <div id="signupGeneralError" class="error"></div>
-      <div id="signupSuccess" class="success"></div>
-
-    </form>
-
-    <div class="extra">
-      <p>Already have an account? <a href="login.html">Login</a></p>
-    </div>
-
+<div class="left-panel">
+  <div class="grid-lines"></div>
+  <div class="brand-logo">
+    <div class="logo-icon">💰</div>
+    <span class="logo-text">PennyWise</span>
   </div>
+  <h1 class="hero-heading">
+    Start your<br>journey to<br><em>financial clarity.</em>
+  </h1>
+  <p class="hero-sub">
+    Join thousands who've taken control of their finances. It's free, private, and takes 30 seconds.
+  </p>
+  <ul class="features-list">
+    <li>
+      <span class="feature-dot">📊</span>
+      Beautiful charts and real-time analytics
+    </li>
+    <li>
+      <span class="feature-dot">🏷️</span>
+      Custom categories for every spending habit
+    </li>
+    <li>
+      <span class="feature-dot">🔒</span>
+      Your data stays private — stored locally
+    </li>
+    <li>
+      <span class="feature-dot">📅</span>
+      Filter by month, track trends over time
+    </li>
+  </ul>
 </div>
 
-<script src="static/js/auth.js"></script>
+<div class="right-panel">
+  <div class="form-header">
+    <h2>Create your account</h2>
+    <p>Free forever. No credit card required.</p>
+  </div>
+
+  <form id="signupForm">
+    <div class="name-row">
+      <div class="form-group">
+        <label for="firstName">First name</label>
+        <div class="input-wrap">
+          <input type="text" id="firstName" placeholder="Alex">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last name</label>
+        <div class="input-wrap">
+          <input type="text" id="lastName" placeholder="Morgan">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="signupEmail">Email address</label>
+      <div class="input-wrap">
+        <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <span class="error-msg" id="signupEmailError"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="signupPassword">Password</label>
+      <div class="input-wrap">
+        <input type="password" id="signupPassword" placeholder="At least 6 characters" autocomplete="new-password" id="signupPassword" oninput="checkStrength(this.value)">
+        <button type="button" class="toggle-pw" onclick="togglePassword('signupPassword')" aria-label="Toggle password">👁</button>
+      </div>
+      <div class="pw-strength">
+        <div class="strength-bar" id="s1"></div>
+        <div class="strength-bar" id="s2"></div>
+        <div class="strength-bar" id="s3"></div>
+        <div class="strength-bar" id="s4"></div>
+        <span class="strength-label" id="strengthLabel"></span>
+      </div>
+      <span class="error-msg" id="signupPasswordError"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm password</label>
+      <div class="input-wrap">
+        <input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password">
+        <button type="button" class="toggle-pw" onclick="togglePassword('confirmPassword')" aria-label="Toggle password">👁</button>
+      </div>
+      <span class="error-msg" id="confirmPasswordError"></span>
+    </div>
+
+    <div class="terms-row">
+      <input type="checkbox" id="agreeTerms">
+      <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+    </div>
+
+    <button type="submit" class="btn-primary" id="signupBtn">Create Account</button>
+    <div class="general-error" id="signupGeneralError"></div>
+    <div class="success-msg" id="signupSuccess"></div>
+  </form>
+
+  <div class="divider"><span>or</span></div>
+  <div class="switch-link">
+    Already have an account? <a href="login.html">Sign in</a>
+  </div>
+</div>
+<script src="static/js/signup.js"></script>
 </body>
 </html>
