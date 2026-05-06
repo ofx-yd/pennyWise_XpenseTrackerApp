@@ -1,108 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PennyWise</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PennyWise — Dashboard</title>
+<link rel="stylesheet" href="static/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="static/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-<div class="app">
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <header>
-        <h1>PennyWise 💰</h1>
-        <h2>Balance: $<span id="balance">0.00</span></h2>
-    </header>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">💰</div>
+    <span class="logo-text">PennyWise</span>
+  </div>
 
-    <!-- Summary -->
-    <div class="summary">
-        <div class="card income">
-            <p>Income</p>
-            <h3>$<span id="income">0.00</span></h3>
-        </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <button class="nav-item active" onclick="showSection('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showSection('transactions', this)">
+      <span class="nav-icon">💳</span> Transactions
+    </button>
+    <button class="nav-item" onclick="showSection('analytics', this)">
+      <span class="nav-icon">📈</span> Analytics
+    </button>
 
-        <div class="card expense">
-            <p>Expense</p>
-            <h3>$<span id="expense">0.00</span></h3>
-        </div>
+    <div class="nav-section-label" style="margin-top:8px">Manage</div>
+    <button class="nav-item" onclick="showSection('categories', this)">
+      <span class="nav-icon">🏷️</span> Categories
+    </button>
+    <button class="nav-item" onclick="showSection('add', this)">
+      <span class="nav-icon">➕</span> Add Transaction
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">U</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">User</div>
+        <div class="user-email" id="userEmailDisplay">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
     </div>
+  </div>
+</aside>
 
-    <!-- Form -->
-    <div class="form-section">
-        <form id="form">
-
-            <input type="text" id="text" placeholder="Description" required>
-            <input type="number" id="amount" placeholder="Amount" required>
-            <input type="date" id="date" required>
-
-            <!-- Toggle -->
-            <div class="type-toggle">
-                <button type="button" id="incomeBtn" class="active">Income</button>
-                <button type="button" id="expenseBtn">Expense</button>
-            </div>
-
-            <select id="category" required></select>
-
-            <input type="text" id="newCategory" placeholder="Add new category">
-            <button type="button" id="addCategoryBtn">+ Add Category</button>
-
-            <button type="submit">Add Transaction</button>
-        </form>
+<!-- MAIN -->
+<main class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
     </div>
-
-    <!-- Filter -->
-    <div class="list-section">
-        <h3>Filter by Month</h3>
+    <div class="topbar-right">
+      <div class="month-filter-wrap">
+        <label>Filter:</label>
         <input type="month" id="monthFilter">
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ DASHBOARD SECTION ═══ -->
+    <div class="section active" id="section-dashboard">
+
+      <!-- Stat Cards -->
+      <div class="stat-grid">
+        <div class="stat-card balance">
+          <div class="stat-label">
+            <div class="stat-icon">💰</div>
+            Net Balance
+          </div>
+          <div class="stat-value">$<span id="balance">0.00</span></div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card income-card">
+          <div class="stat-label">
+            <div class="stat-icon">↑</div>
+            Total Income
+          </div>
+          <div class="stat-value">$<span id="income">0.00</span></div>
+          <div class="stat-sub" id="incomeSubLabel">This period</div>
+        </div>
+        <div class="stat-card expense-card">
+          <div class="stat-label">
+            <div class="stat-icon">↓</div>
+            Total Expenses
+          </div>
+          <div class="stat-value">$<span id="expense">0.00</span></div>
+          <div class="stat-sub" id="expenseSubLabel">This period</div>
+        </div>
+      </div>
+
+      <!-- Dashboard grid -->
+      <div class="dashboard-grid">
+        <!-- Recent transactions -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Transactions</span>
+            <span class="card-badge" id="txCount">0 items</span>
+          </div>
+          <div id="list" class="tx-list"></div>
+          <div class="empty-state" id="empty">
+            <div class="empty-icon">🪙</div>
+            <div class="empty-title">No transactions yet</div>
+            <div class="empty-sub">Add your first transaction to get started</div>
+          </div>
+        </div>
+
+        <!-- Quick add -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Quick Add</span>
+          </div>
+          <div class="card-body">
+            <form id="form">
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label">Type</label>
+                  <div class="type-toggle">
+                    <button type="button" class="type-btn income active" id="incomeBtn" onclick="setType('income')">↑ Income</button>
+                    <button type="button" class="type-btn expense" id="expenseBtn" onclick="setType('expense')">↓ Expense</button>
+                  </div>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Description</label>
+                  <input type="text" id="text" class="form-input" placeholder="e.g. Grocery run" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Amount ($)</label>
+                  <input type="number" id="amount" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Date</label>
+                  <input type="date" id="date" class="form-input" required>
+                </div>
+
+                <div class="form-group full">
+                  <label class="form-label">Category</label>
+                  <select id="category" class="form-input" required></select>
+                </div>
+
+                <div class="add-category-row">
+                  <input type="text" id="newCategory" class="form-input" placeholder="New category name">
+                  <button type="button" class="btn-ghost" id="addCategoryBtn">+ Add</button>
+                </div>
+
+                <button type="submit" class="btn-submit">Add Transaction</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Transactions -->
-    <div class="list-section">
-        <h3>Transactions</h3>
-        <ul id="list"></ul>
-        <p id="empty" class="empty">No transactions</p>
+    <!-- ═══ TRANSACTIONS SECTION ═══ -->
+    <div class="section" id="section-transactions">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <span class="card-title">All Transactions</span>
+          <span class="card-badge" id="txCount2">0 items</span>
+        </div>
+        <div id="list2" class="tx-list"></div>
+        <div class="empty-state" id="empty2">
+          <div class="empty-icon">🪙</div>
+          <div class="empty-title">No transactions yet</div>
+          <div class="empty-sub">Add your first one using Quick Add or the Add Transaction tab</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Categories Manager -->
-    <div class="list-section">
-        <h3>Manage Categories</h3>
+    <!-- ═══ ANALYTICS SECTION ═══ -->
+    <div class="section" id="section-analytics">
 
-        <h4>Income Categories</h4>
-        <ul id="incomeCategoryList"></ul>
+      <div class="stat-grid" style="margin-bottom:20px">
+        <div class="stat-card balance">
+          <div class="stat-label"><div class="stat-icon">💰</div>Net Balance</div>
+          <div class="stat-value">$<span id="balance2">0.00</span></div>
+          <div class="stat-sub">Selected period</div>
+        </div>
+        <div class="stat-card income-card">
+          <div class="stat-label"><div class="stat-icon">↑</div>Income</div>
+          <div class="stat-value">$<span id="income2">0.00</span></div>
+        </div>
+        <div class="stat-card expense-card">
+          <div class="stat-label"><div class="stat-icon">↓</div>Expenses</div>
+          <div class="stat-value">$<span id="expense2">0.00</span></div>
+        </div>
+      </div>
 
-        <h4>Expense Categories</h4>
-        <ul id="expenseCategoryList"></ul>
+      <div class="chart-grid">
+        <div class="chart-wrap">
+          <div class="chart-label">Income Breakdown</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="incomeChart"></canvas>
+            <div class="chart-empty" id="incomeChartEmpty" style="display:none">No income data</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-label">Expense Breakdown</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="expenseChart"></canvas>
+            <div class="chart-empty" id="expenseChartEmpty" style="display:none">No expense data</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid" style="margin-top:0">
+        <div class="chart-wrap">
+          <div class="chart-label">Income by Category</div>
+          <div class="cat-list" id="incomeCatBreakdown"></div>
+          <div class="chart-empty" id="incomeCatEmpty" style="display:none;padding:20px 0;text-align:center">No income data</div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-label">Expenses by Category</div>
+          <div class="cat-list" id="expenseCatBreakdown"></div>
+          <div class="chart-empty" id="expenseCatEmpty" style="display:none;padding:20px 0;text-align:center">No expense data</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Category Summary -->
-    <div class="list-section">
-        <h3>Income Categories</h3>
-        <div id="incomeCategories"></div>
+    <!-- ═══ CATEGORIES SECTION ═══ -->
+    <div class="section" id="section-categories">
+      <div class="cat-manager-grid">
+        <div class="cat-type-card">
+          <div class="cat-type-header">
+            <div class="cat-type-title">
+              <span>📥</span> Income Categories
+              <span class="cat-tag income-tag">Income</span>
+            </div>
+          </div>
+          <div class="cat-chips" id="incomeCategoryChips"></div>
+          <div class="add-cat-form">
+            <input type="text" class="add-cat-input" id="newIncomeCategory" placeholder="Add income category…">
+            <button class="add-cat-btn" onclick="addCategory('income')">+ Add</button>
+          </div>
+        </div>
+
+        <div class="cat-type-card">
+          <div class="cat-type-header">
+            <div class="cat-type-title">
+              <span>📤</span> Expense Categories
+              <span class="cat-tag expense-tag">Expense</span>
+            </div>
+          </div>
+          <div class="cat-chips" id="expenseCategoryChips"></div>
+          <div class="add-cat-form">
+            <input type="text" class="add-cat-input" id="newExpenseCategory" placeholder="Add expense category…">
+            <button class="add-cat-btn" onclick="addCategory('expense')">+ Add</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="list-section">
-        <h3>Expense Categories</h3>
-        <div id="expenseCategories"></div>
+    <!-- ═══ ADD TRANSACTION SECTION ═══ -->
+    <div class="section" id="section-add">
+      <div class="card" style="max-width:600px;margin:0 auto">
+        <div class="card-header">
+          <span class="card-title">Add New Transaction</span>
+        </div>
+        <div class="card-body">
+          <form id="form2">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="form-label">Type</label>
+                <div class="type-toggle">
+                  <button type="button" class="type-btn income active" id="incomeBtn2" onclick="setType2('income')">↑ Income</button>
+                  <button type="button" class="type-btn expense" id="expenseBtn2" onclick="setType2('expense')">↓ Expense</button>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Description</label>
+                <input type="text" id="text2" class="form-input" placeholder="e.g. Monthly salary" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount ($)</label>
+                <input type="number" id="amount2" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" id="date2" class="form-input" required>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Category</label>
+                <select id="category2" class="form-input" required></select>
+              </div>
+              <div class="add-category-row">
+                <input type="text" id="newCategory2" class="form-input" placeholder="Or add a new category">
+                <button type="button" class="btn-ghost" onclick="addCategoryFromForm2()">+ Add</button>
+              </div>
+              <button type="submit" class="btn-submit">Add Transaction</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Charts -->
-    <div class="chart-section">
-        <h3>Income Breakdown</h3>
-        <canvas id="incomeChart"></canvas>
-    </div>
+  </div><!-- /content -->
+</main>
 
-    <div class="chart-section">
-        <h3>Expense Breakdown</h3>
-        <canvas id="expenseChart"></canvas>
-    </div>
-
-</div>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script src="static/js/app.js"></script>
-
 </body>
 </html>
