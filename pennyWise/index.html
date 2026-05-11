@@ -4,20 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PennyWise — Dashboard</title>
-<link rel="stylesheet" href="static/css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body>
 
-<!-- Sidebar overlay for mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- SIDEBAR -->
+<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">💰</div>
+    <img src="assets/logo.svg" alt="PennyWise Logo" class="logo-img">
     <span class="logo-text">PennyWise</span>
   </div>
 
@@ -33,7 +32,29 @@
       <span class="nav-icon">📈</span> Analytics
     </button>
 
-    <div class="nav-section-label" style="margin-top:8px">Manage</div>
+    <div class="nav-section-label">Money Flow</div>
+    <button class="nav-item" onclick="showSection('income', this)">
+      <span class="nav-icon">↑</span> Income
+    </button>
+    <button class="nav-item" onclick="showSection('expenses', this)">
+      <span class="nav-icon">↓</span> Expenses
+    </button>
+    <button class="nav-item" onclick="showSection('transfers', this)">
+      <span class="nav-icon">⇄</span> Transfers
+    </button>
+
+    <div class="nav-section-label">Planning</div>
+    <button class="nav-item" onclick="showSection('budget', this)">
+      <span class="nav-icon">🎯</span> Budget
+    </button>
+    <button class="nav-item" onclick="showSection('savings', this)">
+      <span class="nav-icon">🐷</span> Savings Goals
+    </button>
+    <button class="nav-item" onclick="showSection('debt', this)">
+      <span class="nav-icon">📋</span> Debt
+    </button>
+
+    <div class="nav-section-label">Manage</div>
     <button class="nav-item" onclick="showSection('categories', this)">
       <span class="nav-icon">🏷️</span> Categories
     </button>
@@ -54,9 +75,9 @@
   </div>
 </aside>
 
-<!-- MAIN -->
+<!-- ═══ MAIN ═══ -->
 <main class="main">
-  <!-- Topbar -->
+  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
       <button class="hamburger" onclick="toggleSidebar()">☰</button>
@@ -67,46 +88,69 @@
         <label>Filter:</label>
         <input type="month" id="monthFilter">
       </div>
+
+      <!-- Profile dropdown -->
+      <div class="profile-wrap" id="profileWrap">
+        <button class="profile-trigger" onclick="toggleProfileMenu()" id="profileTrigger">
+          <div class="profile-avatar" id="topbarAvatar">U</div>
+          <div class="profile-name-col">
+            <span class="profile-name" id="topbarName">User</span>
+          </div>
+          <span class="profile-chevron" id="profileChevron">▾</span>
+        </button>
+        <div class="profile-menu" id="profileMenu">
+          <div class="profile-menu-header">
+            <div class="profile-menu-avatar" id="menuAvatar">U</div>
+            <div>
+              <div class="profile-menu-name" id="menuName">User</div>
+              <div class="profile-menu-email" id="menuEmail">—</div>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button class="profile-menu-item" onclick="showSection('analytics', document.querySelector('[onclick*=analytics]')); closeProfileMenu()">
+            📈 Analytics
+          </button>
+          <button class="profile-menu-item" onclick="showSection('categories', document.querySelector('[onclick*=categories]')); closeProfileMenu()">
+            🏷️ Categories
+          </button>
+          <div class="profile-menu-divider"></div>
+          <button class="profile-menu-item danger" onclick="logout()">
+            ⏻ Log out
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- CONTENT -->
   <div class="content">
 
-    <!-- ═══ DASHBOARD SECTION ═══ -->
+    <!-- ═══ DASHBOARD ═══ -->
     <div class="section active" id="section-dashboard">
-
-      <!-- Stat Cards -->
       <div class="stat-grid">
         <div class="stat-card balance">
-          <div class="stat-label">
-            <div class="stat-icon">💰</div>
-            Net Balance
-          </div>
+          <div class="stat-label"><div class="stat-icon">💰</div>Net Balance</div>
           <div class="stat-value">$<span id="balance">0.00</span></div>
           <div class="stat-sub">All time</div>
         </div>
         <div class="stat-card income-card">
-          <div class="stat-label">
-            <div class="stat-icon">↑</div>
-            Total Income
-          </div>
+          <div class="stat-label"><div class="stat-icon">↑</div>Total Income</div>
           <div class="stat-value">$<span id="income">0.00</span></div>
-          <div class="stat-sub" id="incomeSubLabel">This period</div>
+          <div class="stat-sub">This period</div>
         </div>
         <div class="stat-card expense-card">
-          <div class="stat-label">
-            <div class="stat-icon">↓</div>
-            Total Expenses
-          </div>
+          <div class="stat-label"><div class="stat-icon">↓</div>Total Expenses</div>
           <div class="stat-value">$<span id="expense">0.00</span></div>
-          <div class="stat-sub" id="expenseSubLabel">This period</div>
+          <div class="stat-sub">This period</div>
+        </div>
+        <div class="stat-card savings-card">
+          <div class="stat-label"><div class="stat-icon savings-icon">🐷</div>Saved</div>
+          <div class="stat-value">$<span id="dashSaved">0.00</span></div>
+          <div class="stat-sub">Across all goals</div>
         </div>
       </div>
 
-      <!-- Dashboard grid -->
       <div class="dashboard-grid">
-        <!-- Recent transactions -->
         <div class="card">
           <div class="card-header">
             <span class="card-title">Recent Transactions</span>
@@ -120,11 +164,8 @@
           </div>
         </div>
 
-        <!-- Quick add -->
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Quick Add</span>
-          </div>
+          <div class="card-header"><span class="card-title">Quick Add</span></div>
           <div class="card-body">
             <form id="form">
               <div class="form-grid">
@@ -135,43 +176,68 @@
                     <button type="button" class="type-btn expense" id="expenseBtn" onclick="setType('expense')">↓ Expense</button>
                   </div>
                 </div>
-
                 <div class="form-group full">
                   <label class="form-label">Description</label>
                   <input type="text" id="text" class="form-input" placeholder="e.g. Grocery run" required>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">Amount ($)</label>
                   <input type="number" id="amount" class="form-input" placeholder="0.00" step="0.01" min="0" required>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">Date</label>
                   <input type="date" id="date" class="form-input" required>
                 </div>
-
                 <div class="form-group full">
                   <label class="form-label">Category</label>
                   <select id="category" class="form-input" required></select>
                 </div>
-
                 <div class="add-category-row">
                   <input type="text" id="newCategory" class="form-input" placeholder="New category name">
                   <button type="button" class="btn-ghost" id="addCategoryBtn">+ Add</button>
                 </div>
-
                 <button type="submit" class="btn-submit">Add Transaction</button>
               </div>
             </form>
           </div>
         </div>
       </div>
+
+      <!-- Planning widgets -->
+      <div class="dashboard-planning-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Budget Overview</span>
+            <button class="card-link-btn" onclick="navTo('budget')">Manage →</button>
+          </div>
+          <div id="dashBudgetList" class="planning-list">
+            <div class="widget-empty">No budgets set. <button class="inline-link" onclick="navTo('budget')">Add one →</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Savings Goals</span>
+            <button class="card-link-btn" onclick="navTo('savings')">View all →</button>
+          </div>
+          <div id="dashSavingsList" class="planning-list">
+            <div class="widget-empty">No goals yet. <button class="inline-link" onclick="navTo('savings')">Create one →</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Debt Tracker</span>
+            <button class="card-link-btn" onclick="navTo('debt')">Manage →</button>
+          </div>
+          <div id="dashDebtList" class="planning-list">
+            <div class="widget-empty">No debts tracked. <button class="inline-link" onclick="navTo('debt')">Add one →</button></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ═══ TRANSACTIONS SECTION ═══ -->
+    <!-- ═══ TRANSACTIONS ═══ -->
     <div class="section" id="section-transactions">
-      <div class="card" style="margin-bottom:20px">
+      <div class="card">
         <div class="card-header">
           <span class="card-title">All Transactions</span>
           <span class="card-badge" id="txCount2">0 items</span>
@@ -180,14 +246,13 @@
         <div class="empty-state" id="empty2">
           <div class="empty-icon">🪙</div>
           <div class="empty-title">No transactions yet</div>
-          <div class="empty-sub">Add your first one using Quick Add or the Add Transaction tab</div>
+          <div class="empty-sub">Add your first one using Quick Add</div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ ANALYTICS SECTION ═══ -->
+    <!-- ═══ ANALYTICS ═══ -->
     <div class="section" id="section-analytics">
-
       <div class="stat-grid" style="margin-bottom:20px">
         <div class="stat-card balance">
           <div class="stat-label"><div class="stat-icon">💰</div>Net Balance</div>
@@ -203,7 +268,6 @@
           <div class="stat-value">$<span id="expense2">0.00</span></div>
         </div>
       </div>
-
       <div class="chart-grid">
         <div class="chart-wrap">
           <div class="chart-label">Income Breakdown</div>
@@ -220,7 +284,6 @@
           </div>
         </div>
       </div>
-
       <div class="chart-grid" style="margin-top:0">
         <div class="chart-wrap">
           <div class="chart-label">Income by Category</div>
@@ -235,15 +298,123 @@
       </div>
     </div>
 
-    <!-- ═══ CATEGORIES SECTION ═══ -->
+    <!-- ═══ INCOME ═══ -->
+    <div class="section" id="section-income">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val green" id="incomeTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="incomeCount">0</span></div>
+        </div>
+        <button class="btn-add" onclick="openTxModal('income')">+ Add Income</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Income Entries</span>
+          <input class="search-input" placeholder="Search…" oninput="filterTbody('income-tbody', this.value)">
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+            <tbody id="income-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="income-empty"><div class="empty-icon">↑</div><div class="empty-title">No income yet</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EXPENSES ═══ -->
+    <div class="section" id="section-expenses">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val red" id="expenseTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="expenseCount">0</span></div>
+        </div>
+        <button class="btn-add" onclick="openTxModal('expense')">+ Add Expense</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Expense Entries</span>
+          <input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody', this.value)">
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+            <tbody id="expense-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="expense-empty"><div class="empty-icon">↓</div><div class="empty-title">No expenses yet</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TRANSFERS ═══ -->
+    <div class="section" id="section-transfers">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">Total</span><span class="mini-val blue" id="transferTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="transferCount">0</span></div>
+        </div>
+        <button class="btn-add" onclick="openPlanModal('transfer')">+ New Transfer</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Transfer History</span>
+          <input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody', this.value)">
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Description</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+            <tbody id="transfer-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="transfer-empty"><div class="empty-icon">⇄</div><div class="empty-title">No transfers yet</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ BUDGET ═══ -->
+    <div class="section" id="section-budget">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">Budgeted</span><span class="mini-val gold" id="budgetTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Remaining</span><span class="mini-val green" id="budgetRemaining">$0.00</span></div>
+        </div>
+        <button class="btn-add" onclick="openPlanModal('budget')">+ New Budget</button>
+      </div>
+      <div id="budget-cards" class="planning-cards-grid"></div>
+      <div class="empty-state" id="budget-empty"><div class="empty-icon">🎯</div><div class="empty-title">No budgets set</div><div class="empty-sub">Create a budget to track your spending limits</div></div>
+    </div>
+
+    <!-- ═══ SAVINGS GOALS ═══ -->
+    <div class="section" id="section-savings">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">Total saved</span><span class="mini-val gold" id="savingsTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Goals</span><span class="mini-val" id="savingsCount">0</span></div>
+        </div>
+        <button class="btn-add" onclick="openPlanModal('savings')">+ New Goal</button>
+      </div>
+      <div id="savings-cards" class="planning-cards-grid"></div>
+      <div class="empty-state" id="savings-empty"><div class="empty-icon">🐷</div><div class="empty-title">No savings goals</div><div class="empty-sub">Set a goal and start saving towards it</div></div>
+    </div>
+
+    <!-- ═══ DEBT ═══ -->
+    <div class="section" id="section-debt">
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">Total owed</span><span class="mini-val red" id="debtTotal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Total paid</span><span class="mini-val green" id="debtPaid">$0.00</span></div>
+        </div>
+        <button class="btn-add" onclick="openPlanModal('debt')">+ Add Debt</button>
+      </div>
+      <div id="debt-cards" class="planning-cards-grid"></div>
+      <div class="empty-state" id="debt-empty"><div class="empty-icon">📋</div><div class="empty-title">No debts tracked</div><div class="empty-sub">Add a debt to track your repayment progress</div></div>
+    </div>
+
+    <!-- ═══ CATEGORIES ═══ -->
     <div class="section" id="section-categories">
       <div class="cat-manager-grid">
         <div class="cat-type-card">
           <div class="cat-type-header">
-            <div class="cat-type-title">
-              <span>📥</span> Income Categories
-              <span class="cat-tag income-tag">Income</span>
-            </div>
+            <div class="cat-type-title"><span>📥</span> Income Categories<span class="cat-tag income-tag">Income</span></div>
           </div>
           <div class="cat-chips" id="incomeCategoryChips"></div>
           <div class="add-cat-form">
@@ -251,13 +422,9 @@
             <button class="add-cat-btn" onclick="addCategory('income')">+ Add</button>
           </div>
         </div>
-
         <div class="cat-type-card">
           <div class="cat-type-header">
-            <div class="cat-type-title">
-              <span>📤</span> Expense Categories
-              <span class="cat-tag expense-tag">Expense</span>
-            </div>
+            <div class="cat-type-title"><span>📤</span> Expense Categories<span class="cat-tag expense-tag">Expense</span></div>
           </div>
           <div class="cat-chips" id="expenseCategoryChips"></div>
           <div class="add-cat-form">
@@ -268,12 +435,10 @@
       </div>
     </div>
 
-    <!-- ═══ ADD TRANSACTION SECTION ═══ -->
+    <!-- ═══ ADD TRANSACTION ═══ -->
     <div class="section" id="section-add">
       <div class="card" style="max-width:600px;margin:0 auto">
-        <div class="card-header">
-          <span class="card-title">Add New Transaction</span>
-        </div>
+        <div class="card-header"><span class="card-title">Add New Transaction</span></div>
         <div class="card-body">
           <form id="form2">
             <div class="form-grid">
@@ -314,9 +479,30 @@
   </div><!-- /content -->
 </main>
 
-<!-- Toast -->
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <div class="modal-header">
+    <h3 class="modal-title" id="modalTitle">Add</h3>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-body" id="modalBody"></div>
+</div>
+
+<!-- ═══ INSUFFICIENT BALANCE DIALOG ═══ -->
+<div class="modal-overlay" id="debtDialogOverlay"></div>
+<div class="modal debt-dialog" id="debtDialog">
+  <div class="debt-dialog-icon">⚠️</div>
+  <h3 class="debt-dialog-title">Insufficient Balance</h3>
+  <p class="debt-dialog-msg" id="debtDialogMsg">Your net balance is insufficient for this expense.</p>
+  <div class="debt-dialog-btns">
+    <button class="debt-dialog-cancel" onclick="closeDebtDialog()">Cancel</button>
+    <button class="debt-dialog-confirm" onclick="proceedAsDebt()">Record as Debt →</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script src="static/js/app.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
