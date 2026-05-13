@@ -6,7 +6,6 @@
 <title>PennyWise — Create Account</title>
 <link rel="stylesheet" href="static/css/signup.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
 </head>
 <body>
 
@@ -23,22 +22,10 @@
     Join thousands who've taken control of their finances. It's free, private, and takes 30 seconds.
   </p>
   <ul class="features-list">
-    <li>
-      <span class="feature-dot">📊</span>
-      Beautiful charts and real-time analytics
-    </li>
-    <li>
-      <span class="feature-dot">🏷️</span>
-      Custom categories for every spending habit
-    </li>
-    <li>
-      <span class="feature-dot">🔒</span>
-      Your data stays private — stored locally
-    </li>
-    <li>
-      <span class="feature-dot">📅</span>
-      Filter by month, track trends over time
-    </li>
+    <li><span class="feature-dot">📊</span>Beautiful charts and real-time analytics</li>
+    <li><span class="feature-dot">🏷️</span>Custom categories for every spending habit</li>
+    <li><span class="feature-dot">🔒</span>Your data stays private — stored locally</li>
+    <li><span class="feature-dot">📅</span>Filter by month, track trends over time</li>
   </ul>
 </div>
 
@@ -49,19 +36,13 @@
   </div>
 
   <form id="signupForm">
-    <div class="name-row">
-      <div class="form-group">
-        <label for="firstName">First name</label>
-        <div class="input-wrap">
-          <input type="text" id="firstName" placeholder="Alex">
-        </div>
+
+    <div class="form-group">
+      <label for="signupUsername">Username</label>
+      <div class="input-wrap">
+        <input type="text" id="signupUsername" placeholder="e.g. alex_morgan" autocomplete="username" minlength="3" maxlength="50">
       </div>
-      <div class="form-group">
-        <label for="lastName">Last name</label>
-        <div class="input-wrap">
-          <input type="text" id="lastName" placeholder="Morgan">
-        </div>
-      </div>
+      <span class="error-msg" id="signupUsernameError"></span>
     </div>
 
     <div class="form-group">
@@ -75,7 +56,7 @@
     <div class="form-group">
       <label for="signupPassword">Password</label>
       <div class="input-wrap">
-        <input type="password" id="signupPassword" placeholder="At least 6 characters" autocomplete="new-password" id="signupPassword" oninput="checkStrength(this.value)">
+        <input type="password" id="signupPassword" placeholder="Min. 6 chars, 1 uppercase, 1 number" autocomplete="new-password" oninput="checkStrength(this.value)">
         <button type="button" class="toggle-pw" onclick="togglePassword('signupPassword')" aria-label="Toggle password">👁</button>
       </div>
       <div class="pw-strength">
@@ -112,6 +93,7 @@
     Already have an account? <a href="login.html">Sign in</a>
   </div>
 </div>
+
 <script src="static/js/signup.js"></script>
 </body>
 </html>
