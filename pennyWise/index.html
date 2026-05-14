@@ -6,64 +6,37 @@
 <title>PennyWise — Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="static/css/style.css">
-<link rel="stylesheet" href="css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ═══ SIDEBAR ═══ -->
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <img src="assets/logo.svg" alt="PennyWise Logo" class="logo-img">
+    <img src="assets/logo.svg" alt="PennyWise" class="logo-img">
     <span class="logo-text">PennyWise</span>
   </div>
-
   <nav class="sidebar-nav">
     <div class="nav-section-label">Overview</div>
-    <button class="nav-item active" onclick="showSection('dashboard', this)">
-      <span class="nav-icon">📊</span> Dashboard
-    </button>
-    <button class="nav-item" onclick="showSection('transactions', this)">
-      <span class="nav-icon">💳</span> Transactions
-    </button>
-    <button class="nav-item" onclick="showSection('analytics', this)">
-      <span class="nav-icon">📈</span> Analytics
-    </button>
-
-    <div class="nav-section-label">Money Flow</div>
-    <button class="nav-item" onclick="showSection('income', this)">
-      <span class="nav-icon">↑</span> Income
-    </button>
-    <button class="nav-item" onclick="showSection('expenses', this)">
-      <span class="nav-icon">↓</span> Expenses
-    </button>
-    <button class="nav-item" onclick="showSection('transfers', this)">
-      <span class="nav-icon">⇄</span> Transfers
-    </button>
-
+    <button class="nav-item active" onclick="showSection('dashboard',this)"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>Dashboard</button>
+    <button class="nav-item" onclick="showSection('accounts',this)"><span class="nav-icon"><i class="fa-solid fa-building-columns"></i></span>Accounts</button>
+    <button class="nav-item" onclick="showSection('analytics',this)"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span>Analytics</button>
+    <div class="nav-section-label">Transactions</div>
+    <button class="nav-item" onclick="showSection('income',this)"><span class="nav-icon"><i class="fa-solid fa-arrow-trend-up"></i></span>Income</button>
+    <button class="nav-item" onclick="showSection('expenses',this)"><span class="nav-icon"><i class="fa-solid fa-arrow-trend-down"></i></span>Expenses</button>
+    <button class="nav-item" onclick="showSection('transfers',this)"><span class="nav-icon"><i class="fa-solid fa-right-left"></i></span>Transfers</button>
     <div class="nav-section-label">Planning</div>
-    <button class="nav-item" onclick="showSection('budget', this)">
-      <span class="nav-icon">🎯</span> Budget
-    </button>
-    <button class="nav-item" onclick="showSection('savings', this)">
-      <span class="nav-icon">🐷</span> Savings Goals
-    </button>
-    <button class="nav-item" onclick="showSection('debt', this)">
-      <span class="nav-icon">📋</span> Debt
-    </button>
-
+    <button class="nav-item" onclick="showSection('budget',this)"><span class="nav-icon"><i class="fa-solid fa-bullseye"></i></span>Budget</button>
+    <button class="nav-item" onclick="showSection('savings',this)"><span class="nav-icon"><i class="fa-solid fa-piggy-bank"></i></span>Savings Goals</button>
+    <button class="nav-item" onclick="showSection('debt',this)"><span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>Debt</button>
     <div class="nav-section-label">Manage</div>
-    <button class="nav-item" onclick="showSection('categories', this)">
-      <span class="nav-icon">🏷️</span> Categories
-    </button>
-    <button class="nav-item" onclick="showSection('add', this)">
-      <span class="nav-icon">➕</span> Add Transaction
-    </button>
+    <button class="nav-item" onclick="showSection('categories',this)"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span>Categories</button>
+    <button class="nav-item" onclick="showSection('add',this)"><span class="nav-icon"><i class="fa-solid fa-plus"></i></span>Add Transaction</button>
   </nav>
-
   <div class="sidebar-footer">
     <div class="user-card">
       <div class="user-avatar" id="userAvatar">U</div>
@@ -71,17 +44,16 @@
         <div class="user-name" id="userName">User</div>
         <div class="user-email" id="userEmailDisplay">—</div>
       </div>
-      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+      <button class="logout-btn" onclick="confirmLogout()" title="Logout"><i class="fa-solid fa-power-off"></i></button>
     </div>
   </div>
 </aside>
 
-<!-- ═══ MAIN ═══ -->
+<!-- MAIN -->
 <main class="main">
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
-      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
       <h1 class="page-title" id="pageTitle">Dashboard</h1>
     </div>
     <div class="topbar-right">
@@ -89,15 +61,11 @@
         <label>Filter:</label>
         <input type="month" id="monthFilter">
       </div>
-
-      <!-- Profile dropdown -->
       <div class="profile-wrap" id="profileWrap">
         <button class="profile-trigger" onclick="toggleProfileMenu()" id="profileTrigger">
           <div class="profile-avatar" id="topbarAvatar">U</div>
-          <div class="profile-name-col">
-            <span class="profile-name" id="topbarName">User</span>
-          </div>
-          <span class="profile-chevron" id="profileChevron">▾</span>
+          <span class="profile-name" id="topbarName">User</span>
+          <span class="profile-chevron" id="profileChevron"><i class="fa-solid fa-chevron-down"></i></span>
         </button>
         <div class="profile-menu" id="profileMenu">
           <div class="profile-menu-header">
@@ -108,44 +76,57 @@
             </div>
           </div>
           <div class="profile-menu-divider"></div>
-          <button class="profile-menu-item" onclick="showSection('analytics', document.querySelector('[onclick*=analytics]')); closeProfileMenu()">
-            📈 Analytics
-          </button>
-          <button class="profile-menu-item" onclick="showSection('categories', document.querySelector('[onclick*=categories]')); closeProfileMenu()">
-            🏷️ Categories
-          </button>
+          <button class="profile-menu-item" onclick="navTo('accounts');closeProfileMenu()"><i class="fa-solid fa-building-columns"></i> Accounts</button>
+          <button class="profile-menu-item" onclick="navTo('analytics');closeProfileMenu()"><i class="fa-solid fa-chart-pie"></i> Analytics</button>
+          <button class="profile-menu-item" onclick="navTo('categories');closeProfileMenu()"><i class="fa-solid fa-tags"></i> Categories</button>
           <div class="profile-menu-divider"></div>
-          <button class="profile-menu-item danger" onclick="logout()">
-            ⏻ Log out
-          </button>
+          <button class="profile-menu-item danger" onclick="confirmLogout()"><i class="fa-solid fa-power-off"></i> Log out</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
 
-    <!-- ═══ DASHBOARD ═══ -->
+    <!-- DASHBOARD -->
     <div class="section active" id="section-dashboard">
+      <div class="account-strip">
+        <div class="acc-mini card-acc" onclick="navTo('accounts')">
+          <div class="acc-mini-icon"><i class="fa-solid fa-credit-card"></i></div>
+          <div class="acc-mini-info"><div class="acc-mini-name">Card</div><div class="acc-mini-bal" id="cardBal">$0.00</div></div>
+        </div>
+        <div class="acc-mini cash-acc" onclick="navTo('accounts')">
+          <div class="acc-mini-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <div class="acc-mini-info"><div class="acc-mini-name">Cash</div><div class="acc-mini-bal" id="cashBal">$0.00</div></div>
+        </div>
+        <div class="acc-mini sav-acc" onclick="navTo('accounts')">
+          <div class="acc-mini-icon"><i class="fa-solid fa-building-columns"></i></div>
+          <div class="acc-mini-info"><div class="acc-mini-name">Savings</div><div class="acc-mini-bal" id="savAccBal">$0.00</div></div>
+        </div>
+        <div class="acc-mini total-acc">
+          <div class="acc-mini-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="acc-mini-info"><div class="acc-mini-name">Net Worth</div><div class="acc-mini-bal" id="totalBal">$0.00</div></div>
+        </div>
+      </div>
+
       <div class="stat-grid">
         <div class="stat-card balance">
-          <div class="stat-label"><div class="stat-icon">💰</div>Net Balance</div>
+          <div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>Net Balance</div>
           <div class="stat-value">$<span id="balance">0.00</span></div>
-          <div class="stat-sub">All time</div>
+          <div class="stat-sub">Always &ge; 0</div>
         </div>
         <div class="stat-card income-card">
-          <div class="stat-label"><div class="stat-icon">↑</div>Total Income</div>
+          <div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>Total Income</div>
           <div class="stat-value">$<span id="income">0.00</span></div>
           <div class="stat-sub">This period</div>
         </div>
         <div class="stat-card expense-card">
-          <div class="stat-label"><div class="stat-icon">↓</div>Total Expenses</div>
+          <div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>Total Expenses</div>
           <div class="stat-value">$<span id="expense">0.00</span></div>
           <div class="stat-sub">This period</div>
         </div>
         <div class="stat-card savings-card">
-          <div class="stat-label"><div class="stat-icon savings-icon">🐷</div>Saved</div>
+          <div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-piggy-bank"></i></div>Saved</div>
           <div class="stat-value">$<span id="dashSaved">0.00</span></div>
           <div class="stat-sub">Across all goals</div>
         </div>
@@ -159,12 +140,11 @@
           </div>
           <div id="list" class="tx-list"></div>
           <div class="empty-state" id="empty">
-            <div class="empty-icon">🪙</div>
+            <div class="empty-icon"><i class="fa-solid fa-coins"></i></div>
             <div class="empty-title">No transactions yet</div>
             <div class="empty-sub">Add your first transaction to get started</div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header"><span class="card-title">Quick Add</span></div>
           <div class="card-body">
@@ -173,8 +153,8 @@
                 <div class="form-group full">
                   <label class="form-label">Type</label>
                   <div class="type-toggle">
-                    <button type="button" class="type-btn income active" id="incomeBtn" onclick="setType('income')">↑ Income</button>
-                    <button type="button" class="type-btn expense" id="expenseBtn" onclick="setType('expense')">↓ Expense</button>
+                    <button type="button" class="type-btn income active" id="incomeBtn" onclick="setType('income')"><i class="fa-solid fa-arrow-trend-up"></i> Income</button>
+                    <button type="button" class="type-btn expense" id="expenseBtn" onclick="setType('expense')"><i class="fa-solid fa-arrow-trend-down"></i> Expense</button>
                   </div>
                 </div>
                 <div class="form-group full">
@@ -188,6 +168,14 @@
                 <div class="form-group">
                   <label class="form-label">Date</label>
                   <input type="date" id="date" class="form-input" required>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">Account</label>
+                  <select id="quickAccount" class="form-input">
+                    <option value="card">Card</option>
+                    <option value="cash">Cash</option>
+                    <option value="savings">Savings</option>
+                  </select>
                 </div>
                 <div class="form-group full">
                   <label class="form-label">Category</label>
@@ -204,239 +192,223 @@
         </div>
       </div>
 
-      <!-- Planning widgets -->
       <div class="dashboard-planning-grid">
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Budget Overview</span>
-            <button class="card-link-btn" onclick="navTo('budget')">Manage →</button>
-          </div>
-          <div id="dashBudgetList" class="planning-list">
-            <div class="widget-empty">No budgets set. <button class="inline-link" onclick="navTo('budget')">Add one →</button></div>
-          </div>
+          <div class="card-header"><span class="card-title">Budget Overview</span><button class="card-link-btn" onclick="navTo('budget')">Manage &rarr;</button></div>
+          <div id="dashBudgetList" class="planning-list"><div class="widget-empty">No budgets. <button class="inline-link" onclick="navTo('budget')">Add &rarr;</button></div></div>
         </div>
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Savings Goals</span>
-            <button class="card-link-btn" onclick="navTo('savings')">View all →</button>
-          </div>
-          <div id="dashSavingsList" class="planning-list">
-            <div class="widget-empty">No goals yet. <button class="inline-link" onclick="navTo('savings')">Create one →</button></div>
-          </div>
+          <div class="card-header"><span class="card-title">Savings Goals</span><button class="card-link-btn" onclick="navTo('savings')">View all &rarr;</button></div>
+          <div id="dashSavingsList" class="planning-list"><div class="widget-empty">No goals. <button class="inline-link" onclick="navTo('savings')">Create &rarr;</button></div></div>
         </div>
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Debt Tracker</span>
-            <button class="card-link-btn" onclick="navTo('debt')">Manage →</button>
-          </div>
-          <div id="dashDebtList" class="planning-list">
-            <div class="widget-empty">No debts tracked. <button class="inline-link" onclick="navTo('debt')">Add one →</button></div>
-          </div>
+          <div class="card-header"><span class="card-title">Debt Tracker</span><button class="card-link-btn" onclick="navTo('debt')">Manage &rarr;</button></div>
+          <div id="dashDebtList" class="planning-list"><div class="widget-empty">No debts. <button class="inline-link" onclick="navTo('debt')">Add &rarr;</button></div></div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ TRANSACTIONS ═══ -->
-    <div class="section" id="section-transactions">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">All Transactions</span>
-          <span class="card-badge" id="txCount2">0 items</span>
+    <!-- ACCOUNTS -->
+    <div class="section" id="section-accounts">
+      <div class="accounts-grid">
+        <div class="account-full-card card-color">
+          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-credit-card"></i></div><div><div class="acf-name">Card</div><div class="acf-sub">Bank / debit card</div></div></div>
+          <div class="acf-balance" id="cardBalFull">$0.00</div>
+          <div class="acf-stats">
+            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="cardIncome">$0.00</div></div>
+            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="cardExpense">$0.00</div></div>
+          </div>
+          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'card')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
         </div>
-        <div id="list2" class="tx-list"></div>
-        <div class="empty-state" id="empty2">
-          <div class="empty-icon">🪙</div>
-          <div class="empty-title">No transactions yet</div>
-          <div class="empty-sub">Add your first one using Quick Add</div>
+        <div class="account-full-card cash-color">
+          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-money-bill-wave"></i></div><div><div class="acf-name">Cash</div><div class="acf-sub">Physical cash</div></div></div>
+          <div class="acf-balance" id="cashBalFull">$0.00</div>
+          <div class="acf-stats">
+            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="cashIncome">$0.00</div></div>
+            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="cashExpense">$0.00</div></div>
+          </div>
+          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'cash')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
+        </div>
+        <div class="account-full-card sav-color">
+          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-building-columns"></i></div><div><div class="acf-name">Savings</div><div class="acf-sub">Savings account</div></div></div>
+          <div class="acf-balance" id="savBalFull">$0.00</div>
+          <div class="acf-stats">
+            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="savIncome">$0.00</div></div>
+            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="savExpense">$0.00</div></div>
+          </div>
+          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'savings')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-right-left" style="margin-right:8px"></i>Transfer Between Accounts</span></div>
+        <div class="card-body">
+          <form id="transferForm" style="max-width:500px">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">From</label>
+                <select id="tfFrom" class="form-input">
+                  <option value="card">Card</option>
+                  <option value="cash">Cash</option>
+                  <option value="savings">Savings</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">To</label>
+                <select id="tfTo" class="form-input">
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="savings">Savings</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount ($)</label>
+                <input type="number" id="tfAmount" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" id="tfDate" class="form-input">
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Note (optional)</label>
+                <input type="text" id="tfNote" class="form-input" placeholder="e.g. Monthly savings">
+              </div>
+              <button type="button" class="btn-submit" onclick="submitAccountTransfer()"><i class="fa-solid fa-right-left"></i> Transfer</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- ═══ ANALYTICS ═══ -->
+    <!-- ANALYTICS -->
     <div class="section" id="section-analytics">
       <div class="stat-grid" style="margin-bottom:20px">
-        <div class="stat-card balance">
-          <div class="stat-label"><div class="stat-icon">💰</div>Net Balance</div>
-          <div class="stat-value">$<span id="balance2">0.00</span></div>
-          <div class="stat-sub">Selected period</div>
-        </div>
-        <div class="stat-card income-card">
-          <div class="stat-label"><div class="stat-icon">↑</div>Income</div>
-          <div class="stat-value">$<span id="income2">0.00</span></div>
-        </div>
-        <div class="stat-card expense-card">
-          <div class="stat-label"><div class="stat-icon">↓</div>Expenses</div>
-          <div class="stat-value">$<span id="expense2">0.00</span></div>
-        </div>
+        <div class="stat-card balance"><div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>Net Balance</div><div class="stat-value">$<span id="balance2">0.00</span></div></div>
+        <div class="stat-card income-card"><div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>Income</div><div class="stat-value">$<span id="income2">0.00</span></div></div>
+        <div class="stat-card expense-card"><div class="stat-label"><div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>Expenses</div><div class="stat-value">$<span id="expense2">0.00</span></div></div>
       </div>
       <div class="chart-grid">
-        <div class="chart-wrap">
-          <div class="chart-label">Income Breakdown</div>
-          <div class="chart-canvas-wrap">
-            <canvas id="incomeChart"></canvas>
-            <div class="chart-empty" id="incomeChartEmpty" style="display:none">No income data</div>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-label">Expense Breakdown</div>
-          <div class="chart-canvas-wrap">
-            <canvas id="expenseChart"></canvas>
-            <div class="chart-empty" id="expenseChartEmpty" style="display:none">No expense data</div>
-          </div>
-        </div>
+        <div class="chart-wrap"><div class="chart-label">Income Breakdown</div><div class="chart-canvas-wrap"><canvas id="incomeChart"></canvas><div class="chart-empty" id="incomeChartEmpty" style="display:none">No income data</div></div></div>
+        <div class="chart-wrap"><div class="chart-label">Expense Breakdown</div><div class="chart-canvas-wrap"><canvas id="expenseChart"></canvas><div class="chart-empty" id="expenseChartEmpty" style="display:none">No expense data</div></div></div>
       </div>
       <div class="chart-grid" style="margin-top:0">
-        <div class="chart-wrap">
-          <div class="chart-label">Income by Category</div>
-          <div class="cat-list" id="incomeCatBreakdown"></div>
-          <div class="chart-empty" id="incomeCatEmpty" style="display:none;padding:20px 0;text-align:center">No income data</div>
-        </div>
-        <div class="chart-wrap">
-          <div class="chart-label">Expenses by Category</div>
-          <div class="cat-list" id="expenseCatBreakdown"></div>
-          <div class="chart-empty" id="expenseCatEmpty" style="display:none;padding:20px 0;text-align:center">No expense data</div>
-        </div>
+        <div class="chart-wrap"><div class="chart-label">Income by Category</div><div class="cat-list" id="incomeCatBreakdown"></div><div class="chart-empty" id="incomeCatEmpty" style="display:none;padding:20px 0;text-align:center">No data</div></div>
+        <div class="chart-wrap"><div class="chart-label">Expenses by Category</div><div class="cat-list" id="expenseCatBreakdown"></div><div class="chart-empty" id="expenseCatEmpty" style="display:none;padding:20px 0;text-align:center">No data</div></div>
       </div>
     </div>
 
-    <!-- ═══ INCOME ═══ -->
+    <!-- INCOME -->
     <div class="section" id="section-income">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val green" id="incomeTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="incomeCount">0</span></div>
         </div>
-        <button class="btn-add" onclick="openTxModal('income')">+ Add Income</button>
+        <button class="btn-add" onclick="openTxModal('income')"><i class="fa-solid fa-plus"></i> Add Income</button>
       </div>
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">Income Entries</span>
-          <input class="search-input" placeholder="Search…" oninput="filterTbody('income-tbody', this.value)">
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
-            <tbody id="income-tbody"></tbody>
-          </table>
-          <div class="empty-state" id="income-empty"><div class="empty-icon">↑</div><div class="empty-title">No income yet</div></div>
-        </div>
+        <div class="card-header"><span class="card-title">Income Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('income-tbody',this.value)"></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="income-tbody"></tbody></table>
+        <div class="empty-state" id="income-empty"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-up"></i></div><div class="empty-title">No income yet</div></div></div>
       </div>
     </div>
 
-    <!-- ═══ EXPENSES ═══ -->
+    <!-- EXPENSES -->
     <div class="section" id="section-expenses">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val red" id="expenseTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="expenseCount">0</span></div>
         </div>
-        <button class="btn-add" onclick="openTxModal('expense')">+ Add Expense</button>
+        <button class="btn-add" onclick="openTxModal('expense')"><i class="fa-solid fa-plus"></i> Add Expense</button>
       </div>
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">Expense Entries</span>
-          <input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody', this.value)">
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead>
-            <tbody id="expense-tbody"></tbody>
-          </table>
-          <div class="empty-state" id="expense-empty"><div class="empty-icon">↓</div><div class="empty-title">No expenses yet</div></div>
-        </div>
+        <div class="card-header"><span class="card-title">Expense Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody',this.value)"></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="expense-tbody"></tbody></table>
+        <div class="empty-state" id="expense-empty"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div><div class="empty-title">No expenses yet</div></div></div>
       </div>
     </div>
 
-    <!-- ═══ TRANSFERS ═══ -->
+    <!-- TRANSFERS -->
     <div class="section" id="section-transfers">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">Total</span><span class="mini-val blue" id="transferTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="transferCount">0</span></div>
         </div>
-        <button class="btn-add" onclick="openPlanModal('transfer')">+ New Transfer</button>
       </div>
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">Transfer History</span>
-          <input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody', this.value)">
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>Description</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead>
-            <tbody id="transfer-tbody"></tbody>
-          </table>
-          <div class="empty-state" id="transfer-empty"><div class="empty-icon">⇄</div><div class="empty-title">No transfers yet</div></div>
-        </div>
+        <div class="card-header"><span class="card-title">Transfer History</span><input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody',this.value)"></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Note</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="transfer-tbody"></tbody></table>
+        <div class="empty-state" id="transfer-empty"><div class="empty-icon"><i class="fa-solid fa-right-left"></i></div><div class="empty-title">No transfers yet</div></div></div>
       </div>
     </div>
 
-    <!-- ═══ BUDGET ═══ -->
+    <!-- BUDGET -->
     <div class="section" id="section-budget">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">Budgeted</span><span class="mini-val gold" id="budgetTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Remaining</span><span class="mini-val green" id="budgetRemaining">$0.00</span></div>
         </div>
-        <button class="btn-add" onclick="openPlanModal('budget')">+ New Budget</button>
+        <button class="btn-add" onclick="openPlanModal('budget')"><i class="fa-solid fa-plus"></i> New Budget</button>
       </div>
       <div id="budget-cards" class="planning-cards-grid"></div>
-      <div class="empty-state" id="budget-empty"><div class="empty-icon">🎯</div><div class="empty-title">No budgets set</div><div class="empty-sub">Create a budget to track your spending limits</div></div>
+      <div class="empty-state" id="budget-empty"><div class="empty-icon"><i class="fa-solid fa-bullseye"></i></div><div class="empty-title">No budgets set</div><div class="empty-sub">Create a budget to track your spending limits</div></div>
     </div>
 
-    <!-- ═══ SAVINGS GOALS ═══ -->
+    <!-- SAVINGS -->
     <div class="section" id="section-savings">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">Total saved</span><span class="mini-val gold" id="savingsTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Goals</span><span class="mini-val" id="savingsCount">0</span></div>
         </div>
-        <button class="btn-add" onclick="openPlanModal('savings')">+ New Goal</button>
+        <button class="btn-add" onclick="openPlanModal('savings')"><i class="fa-solid fa-plus"></i> New Goal</button>
       </div>
       <div id="savings-cards" class="planning-cards-grid"></div>
-      <div class="empty-state" id="savings-empty"><div class="empty-icon">🐷</div><div class="empty-title">No savings goals</div><div class="empty-sub">Set a goal and start saving towards it</div></div>
+      <div class="empty-state" id="savings-empty"><div class="empty-icon"><i class="fa-solid fa-piggy-bank"></i></div><div class="empty-title">No savings goals</div><div class="empty-sub">Set a goal and start saving towards it</div></div>
     </div>
 
-    <!-- ═══ DEBT ═══ -->
+    <!-- DEBT -->
     <div class="section" id="section-debt">
+      <div class="debt-reminder" id="debtReminder" style="display:none">
+        <div class="debt-reminder-inner">
+          <span class="debt-reminder-icon"><i class="fa-solid fa-lightbulb"></i></span>
+          <div>
+            <div class="debt-reminder-title">Pending expense waiting</div>
+            <div class="debt-reminder-sub" id="debtReminderSub">Add a loan below &rarr; the borrowed amount is credited to your account &rarr; then retry your expense.</div>
+          </div>
+        </div>
+        <button class="debt-reminder-close" onclick="document.getElementById('debtReminder').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+      </div>
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">Total owed</span><span class="mini-val red" id="debtTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Total paid</span><span class="mini-val green" id="debtPaid">$0.00</span></div>
         </div>
-        <button class="btn-add" onclick="openPlanModal('debt')">+ Add Debt</button>
+        <button class="btn-add" onclick="openPlanModal('debt')"><i class="fa-solid fa-plus"></i> Add Debt / Loan</button>
       </div>
       <div id="debt-cards" class="planning-cards-grid"></div>
-      <div class="empty-state" id="debt-empty"><div class="empty-icon">📋</div><div class="empty-title">No debts tracked</div><div class="empty-sub">Add a debt to track your repayment progress</div></div>
+      <div class="empty-state" id="debt-empty"><div class="empty-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div class="empty-title">No debts tracked</div><div class="empty-sub">Add a debt or loan — the amount is credited to your balance</div></div>
     </div>
 
-    <!-- ═══ CATEGORIES ═══ -->
+    <!-- CATEGORIES -->
     <div class="section" id="section-categories">
       <div class="cat-manager-grid">
         <div class="cat-type-card">
-          <div class="cat-type-header">
-            <div class="cat-type-title"><span>📥</span> Income Categories<span class="cat-tag income-tag">Income</span></div>
-          </div>
+          <div class="cat-type-header"><div class="cat-type-title"><i class="fa-solid fa-arrow-trend-up"></i> Income Categories<span class="cat-tag income-tag">Income</span></div></div>
           <div class="cat-chips" id="incomeCategoryChips"></div>
-          <div class="add-cat-form">
-            <input type="text" class="add-cat-input" id="newIncomeCategory" placeholder="Add income category…">
-            <button class="add-cat-btn" onclick="addCategory('income')">+ Add</button>
-          </div>
+          <div class="add-cat-form"><input type="text" class="add-cat-input" id="newIncomeCategory" placeholder="Add income category…"><button class="add-cat-btn" onclick="addCategory('income')">+ Add</button></div>
         </div>
         <div class="cat-type-card">
-          <div class="cat-type-header">
-            <div class="cat-type-title"><span>📤</span> Expense Categories<span class="cat-tag expense-tag">Expense</span></div>
-          </div>
+          <div class="cat-type-header"><div class="cat-type-title"><i class="fa-solid fa-arrow-trend-down"></i> Expense Categories<span class="cat-tag expense-tag">Expense</span></div></div>
           <div class="cat-chips" id="expenseCategoryChips"></div>
-          <div class="add-cat-form">
-            <input type="text" class="add-cat-input" id="newExpenseCategory" placeholder="Add expense category…">
-            <button class="add-cat-btn" onclick="addCategory('expense')">+ Add</button>
-          </div>
+          <div class="add-cat-form"><input type="text" class="add-cat-input" id="newExpenseCategory" placeholder="Add expense category…"><button class="add-cat-btn" onclick="addCategory('expense')">+ Add</button></div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ ADD TRANSACTION ═══ -->
+    <!-- ADD TRANSACTION -->
     <div class="section" id="section-add">
       <div class="card" style="max-width:600px;margin:0 auto">
         <div class="card-header"><span class="card-title">Add New Transaction</span></div>
@@ -446,30 +418,23 @@
               <div class="form-group full">
                 <label class="form-label">Type</label>
                 <div class="type-toggle">
-                  <button type="button" class="type-btn income active" id="incomeBtn2" onclick="setType2('income')">↑ Income</button>
-                  <button type="button" class="type-btn expense" id="expenseBtn2" onclick="setType2('expense')">↓ Expense</button>
+                  <button type="button" class="type-btn income active" id="incomeBtn2" onclick="setType2('income')"><i class="fa-solid fa-arrow-trend-up"></i> Income</button>
+                  <button type="button" class="type-btn expense" id="expenseBtn2" onclick="setType2('expense')"><i class="fa-solid fa-arrow-trend-down"></i> Expense</button>
                 </div>
               </div>
+              <div class="form-group full"><label class="form-label">Description</label><input type="text" id="text2" class="form-input" placeholder="e.g. Monthly salary" required></div>
+              <div class="form-group"><label class="form-label">Amount ($)</label><input type="number" id="amount2" class="form-input" placeholder="0.00" step="0.01" min="0" required></div>
+              <div class="form-group"><label class="form-label">Date</label><input type="date" id="date2" class="form-input" required></div>
               <div class="form-group full">
-                <label class="form-label">Description</label>
-                <input type="text" id="text2" class="form-input" placeholder="e.g. Monthly salary" required>
+                <label class="form-label">Account</label>
+                <select id="account2" class="form-input">
+                  <option value="card">Card</option>
+                  <option value="cash">Cash</option>
+                  <option value="savings">Savings</option>
+                </select>
               </div>
-              <div class="form-group">
-                <label class="form-label">Amount ($)</label>
-                <input type="number" id="amount2" class="form-input" placeholder="0.00" step="0.01" min="0" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Date</label>
-                <input type="date" id="date2" class="form-input" required>
-              </div>
-              <div class="form-group full">
-                <label class="form-label">Category</label>
-                <select id="category2" class="form-input" required></select>
-              </div>
-              <div class="add-category-row">
-                <input type="text" id="newCategory2" class="form-input" placeholder="Or add a new category">
-                <button type="button" class="btn-ghost" onclick="addCategoryFromForm2()">+ Add</button>
-              </div>
+              <div class="form-group full"><label class="form-label">Category</label><select id="category2" class="form-input" required></select></div>
+              <div class="add-category-row"><input type="text" id="newCategory2" class="form-input" placeholder="Or add a new category"><button type="button" class="btn-ghost" onclick="addCategoryFromForm2()">+ Add</button></div>
               <button type="submit" class="btn-submit">Add Transaction</button>
             </div>
           </form>
@@ -477,33 +442,50 @@
       </div>
     </div>
 
-  </div><!-- /content -->
+  </div>
 </main>
 
-<!-- ═══ MODAL ═══ -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
 <div class="modal" id="modal">
   <div class="modal-header">
     <h3 class="modal-title" id="modalTitle">Add</h3>
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div class="modal-body" id="modalBody"></div>
 </div>
 
-<!-- ═══ INSUFFICIENT BALANCE DIALOG ═══ -->
+<!-- INSUFFICIENT BALANCE DIALOG -->
 <div class="modal-overlay" id="debtDialogOverlay"></div>
-<div class="modal debt-dialog" id="debtDialog">
-  <div class="debt-dialog-icon">⚠️</div>
-  <h3 class="debt-dialog-title">Insufficient Balance</h3>
-  <p class="debt-dialog-msg" id="debtDialogMsg">Your net balance is insufficient for this expense.</p>
-  <div class="debt-dialog-btns">
-    <button class="debt-dialog-cancel" onclick="closeDebtDialog()">Cancel</button>
-    <button class="debt-dialog-confirm" onclick="proceedAsDebt()">Record as Debt →</button>
+<div class="confirm-dialog" id="debtDialog">
+  <div class="cd-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <h3 class="cd-title">Insufficient Balance</h3>
+  <p class="cd-msg" id="debtDialogMsg"></p>
+  <div class="cd-shortfall" id="debtShortfall"></div>
+  <div class="cd-steps">
+    <div class="cd-step"><span class="cd-step-n">1</span><span>Go to <strong>Debt tab</strong> and record your loan</span></div>
+    <div class="cd-step"><span class="cd-step-n">2</span><span>Loan amount is <strong>credited to your account</strong> as income</span></div>
+    <div class="cd-step"><span class="cd-step-n">3</span><span>Come back and <strong>retry your expense</strong> — balance now covers it</span></div>
+  </div>
+  <div class="cd-btns">
+    <button class="cd-cancel" onclick="closeDebtDialog()">Cancel</button>
+    <button class="cd-confirm" onclick="goToDebtTab()">Go to Debt tab <i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRM DIALOG -->
+<div class="modal-overlay" id="logoutOverlay"></div>
+<div class="confirm-dialog" id="logoutDialog">
+  <div class="cd-icon"><i class="fa-solid fa-power-off"></i></div>
+  <h3 class="cd-title">Log out?</h3>
+  <p class="cd-msg">Are you sure you want to log out of PennyWise? Your data stays saved locally.</p>
+  <div class="cd-btns">
+    <button class="cd-cancel" onclick="closeLogoutDialog()">Cancel</button>
+    <button class="cd-confirm danger" onclick="doLogout()">Yes, log out</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script src="static/js/app.js"></script>
 </body>
 </html>
