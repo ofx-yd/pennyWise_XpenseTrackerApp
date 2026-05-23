@@ -90,22 +90,13 @@
 
     <!-- DASHBOARD -->
     <div class="section active" id="section-dashboard">
-      <div class="account-strip">
-        <div class="acc-mini card-acc" onclick="navTo('accounts')">
-          <div class="acc-mini-icon"><i class="fa-solid fa-credit-card"></i></div>
-          <div class="acc-mini-info"><div class="acc-mini-name">Card</div><div class="acc-mini-bal" id="cardBal">$0.00</div></div>
-        </div>
-        <div class="acc-mini cash-acc" onclick="navTo('accounts')">
-          <div class="acc-mini-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
-          <div class="acc-mini-info"><div class="acc-mini-name">Cash</div><div class="acc-mini-bal" id="cashBal">$0.00</div></div>
-        </div>
-        <div class="acc-mini sav-acc" onclick="navTo('accounts')">
-          <div class="acc-mini-icon"><i class="fa-solid fa-building-columns"></i></div>
-          <div class="acc-mini-info"><div class="acc-mini-name">Savings</div><div class="acc-mini-bal" id="savAccBal">$0.00</div></div>
-        </div>
+      <div class="account-strip" id="accountStrip">
         <div class="acc-mini total-acc">
           <div class="acc-mini-icon"><i class="fa-solid fa-wallet"></i></div>
-          <div class="acc-mini-info"><div class="acc-mini-name">Net Worth</div><div class="acc-mini-bal" id="totalBal">$0.00</div></div>
+          <div class="acc-mini-info">
+            <div class="acc-mini-name">Net Worth</div>
+            <div class="acc-mini-bal" id="totalBal">$0.00</div>
+          </div>
         </div>
       </div>
 
@@ -139,7 +130,7 @@
             <span class="card-badge" id="txCount">0 items</span>
           </div>
           <div id="list" class="tx-list"></div>
-          <div class="empty-state" id="empty">
+          <div class="empty-state" id="empty" style="display:none">
             <div class="empty-icon"><i class="fa-solid fa-coins"></i></div>
             <div class="empty-title">No transactions yet</div>
             <div class="empty-sub">Add your first transaction to get started</div>
@@ -171,19 +162,11 @@
                 </div>
                 <div class="form-group full">
                   <label class="form-label">Account</label>
-                  <select id="quickAccount" class="form-input">
-                    <option value="card">Card</option>
-                    <option value="cash">Cash</option>
-                    <option value="savings">Savings</option>
-                  </select>
+                  <select id="quickAccount" class="form-input"></select>
                 </div>
                 <div class="form-group full">
                   <label class="form-label">Category</label>
                   <select id="category" class="form-input" required></select>
-                </div>
-                <div class="add-category-row">
-                  <input type="text" id="newCategory" class="form-input" placeholder="New category name">
-                  <button type="button" class="btn-ghost" id="addCategoryBtn">+ Add</button>
                 </div>
                 <button type="submit" class="btn-submit">Add Transaction</button>
               </div>
@@ -210,35 +193,40 @@
 
     <!-- ACCOUNTS -->
     <div class="section" id="section-accounts">
-      <div class="accounts-grid">
-        <div class="account-full-card card-color">
-          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-credit-card"></i></div><div><div class="acf-name">Card</div><div class="acf-sub">Bank / debit card</div></div></div>
-          <div class="acf-balance" id="cardBalFull">$0.00</div>
-          <div class="acf-stats">
-            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="cardIncome">$0.00</div></div>
-            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="cardExpense">$0.00</div></div>
-          </div>
-          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'card')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
-        </div>
-        <div class="account-full-card cash-color">
-          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-money-bill-wave"></i></div><div><div class="acf-name">Cash</div><div class="acf-sub">Physical cash</div></div></div>
-          <div class="acf-balance" id="cashBalFull">$0.00</div>
-          <div class="acf-stats">
-            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="cashIncome">$0.00</div></div>
-            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="cashExpense">$0.00</div></div>
-          </div>
-          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'cash')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
-        </div>
-        <div class="account-full-card sav-color">
-          <div class="acf-header"><div class="acf-icon"><i class="fa-solid fa-building-columns"></i></div><div><div class="acf-name">Savings</div><div class="acf-sub">Savings account</div></div></div>
-          <div class="acf-balance" id="savBalFull">$0.00</div>
-          <div class="acf-stats">
-            <div><div class="acf-stat-label">Income</div><div class="acf-stat-val green" id="savIncome">$0.00</div></div>
-            <div><div class="acf-stat-label">Expenses</div><div class="acf-stat-val red" id="savExpense">$0.00</div></div>
-          </div>
-          <button class="btn-add" style="width:100%;margin-top:16px" onclick="openTxModal('income',null,'savings')"><i class="fa-solid fa-plus"></i> Add Transaction</button>
+      <div class="section-top-bar">
+        <div class="section-stats">
+          <div class="mini-stat"><span class="mini-label">Total balance</span><span class="mini-val gold" id="accountsTotalBal">$0.00</span></div>
+          <div class="mini-stat"><span class="mini-label">Accounts</span><span class="mini-val" id="accountsCount">0</span></div>
         </div>
       </div>
+      <div class="empty-state" id="accounts-empty" style="display:none">
+        <div class="empty-icon"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="empty-title">No accounts yet</div>
+        <div class="empty-sub">Create an account below to start tracking</div>
+      </div>
+      <div class="accounts-grid" id="accounts-grid"></div>
+
+      <!-- Create new account -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-plus" style="margin-right:8px"></i>Create New Account</span></div>
+        <div class="card-body">
+          <form id="createAccountForm" style="max-width:500px">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="form-label">Account Name</label>
+                <input type="text" id="newAccountName" class="form-input" placeholder="e.g. Cash, Bank, Telebirr" required>
+              </div>
+              <div class="form-group full">
+                <label class="form-label">Opening Balance ($)</label>
+                <input type="number" id="newAccountBalance" class="form-input" placeholder="0.00" step="0.01" min="0" value="0">
+              </div>
+              <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Create Account</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Transfer Between Accounts -->
       <div class="card" style="margin-top:20px">
         <div class="card-header"><span class="card-title"><i class="fa-solid fa-right-left" style="margin-right:8px"></i>Transfer Between Accounts</span></div>
         <div class="card-body">
@@ -246,19 +234,11 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">From</label>
-                <select id="tfFrom" class="form-input">
-                  <option value="card">Card</option>
-                  <option value="cash">Cash</option>
-                  <option value="savings">Savings</option>
-                </select>
+                <select id="tfFrom" class="form-input"></select>
               </div>
               <div class="form-group">
                 <label class="form-label">To</label>
-                <select id="tfTo" class="form-input">
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="savings">Savings</option>
-                </select>
+                <select id="tfTo" class="form-input"></select>
               </div>
               <div class="form-group">
                 <label class="form-label">Amount ($)</label>
@@ -307,8 +287,10 @@
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Income Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('income-tbody',this.value)"></div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="income-tbody"></tbody></table>
-        <div class="empty-state" id="income-empty"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-up"></i></div><div class="empty-title">No income yet</div></div></div>
+        <div class="table-wrap">
+          <table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="income-tbody"></tbody></table>
+          <div class="empty-state" id="income-empty" style="display:none"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-up"></i></div><div class="empty-title">No income yet</div></div>
+        </div>
       </div>
     </div>
 
@@ -323,8 +305,10 @@
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Expense Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody',this.value)"></div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="expense-tbody"></tbody></table>
-        <div class="empty-state" id="expense-empty"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div><div class="empty-title">No expenses yet</div></div></div>
+        <div class="table-wrap">
+          <table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="expense-tbody"></tbody></table>
+          <div class="empty-state" id="expense-empty" style="display:none"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div><div class="empty-title">No expenses yet</div></div>
+        </div>
       </div>
     </div>
 
@@ -338,8 +322,10 @@
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Transfer History</span><input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody',this.value)"></div>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Note</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="transfer-tbody"></tbody></table>
-        <div class="empty-state" id="transfer-empty"><div class="empty-icon"><i class="fa-solid fa-right-left"></i></div><div class="empty-title">No transfers yet</div></div></div>
+        <div class="table-wrap">
+          <table class="data-table"><thead><tr><th>Note</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="transfer-tbody"></tbody></table>
+          <div class="empty-state" id="transfer-empty" style="display:none"><div class="empty-icon"><i class="fa-solid fa-right-left"></i></div><div class="empty-title">No transfers yet</div></div>
+        </div>
       </div>
     </div>
 
@@ -398,12 +384,18 @@
         <div class="cat-type-card">
           <div class="cat-type-header"><div class="cat-type-title"><i class="fa-solid fa-arrow-trend-up"></i> Income Categories<span class="cat-tag income-tag">Income</span></div></div>
           <div class="cat-chips" id="incomeCategoryChips"></div>
-          <div class="add-cat-form"><input type="text" class="add-cat-input" id="newIncomeCategory" placeholder="Add income category…"><button class="add-cat-btn" onclick="addCategory('income')">+ Add</button></div>
+          <div class="add-cat-form">
+            <input type="text" class="add-cat-input" id="newIncomeCategory" placeholder="Add income category…">
+            <button class="add-cat-btn" onclick="addCategory('income')">+ Add</button>
+          </div>
         </div>
         <div class="cat-type-card">
           <div class="cat-type-header"><div class="cat-type-title"><i class="fa-solid fa-arrow-trend-down"></i> Expense Categories<span class="cat-tag expense-tag">Expense</span></div></div>
           <div class="cat-chips" id="expenseCategoryChips"></div>
-          <div class="add-cat-form"><input type="text" class="add-cat-input" id="newExpenseCategory" placeholder="Add expense category…"><button class="add-cat-btn" onclick="addCategory('expense')">+ Add</button></div>
+          <div class="add-cat-form">
+            <input type="text" class="add-cat-input" id="newExpenseCategory" placeholder="Add expense category…">
+            <button class="add-cat-btn" onclick="addCategory('expense')">+ Add</button>
+          </div>
         </div>
       </div>
     </div>
@@ -427,14 +419,12 @@
               <div class="form-group"><label class="form-label">Date</label><input type="date" id="date2" class="form-input" required></div>
               <div class="form-group full">
                 <label class="form-label">Account</label>
-                <select id="account2" class="form-input">
-                  <option value="card">Card</option>
-                  <option value="cash">Cash</option>
-                  <option value="savings">Savings</option>
-                </select>
+                <select id="account2" class="form-input"></select>
               </div>
-              <div class="form-group full"><label class="form-label">Category</label><select id="category2" class="form-input" required></select></div>
-              <div class="add-category-row"><input type="text" id="newCategory2" class="form-input" placeholder="Or add a new category"><button type="button" class="btn-ghost" onclick="addCategoryFromForm2()">+ Add</button></div>
+              <div class="form-group full">
+                <label class="form-label">Category</label>
+                <select id="category2" class="form-input" required></select>
+              </div>
               <button type="submit" class="btn-submit">Add Transaction</button>
             </div>
           </form>
@@ -478,7 +468,7 @@
 <div class="confirm-dialog" id="logoutDialog">
   <div class="cd-icon"><i class="fa-solid fa-power-off"></i></div>
   <h3 class="cd-title">Log out?</h3>
-  <p class="cd-msg">Are you sure you want to log out of PennyWise? Your data stays saved locally.</p>
+  <p class="cd-msg">Are you sure you want to log out of PennyWise?</p>
   <div class="cd-btns">
     <button class="cd-cancel" onclick="closeLogoutDialog()">Cancel</button>
     <button class="cd-confirm danger" onclick="doLogout()">Yes, log out</button>
