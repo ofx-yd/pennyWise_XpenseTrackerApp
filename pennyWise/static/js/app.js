@@ -9,12 +9,12 @@ let _expenseCategories = []; // [{ id, name }]
 let _incomeRecords   = [];   // from GET /income
 let _expenseRecords  = [];   // from GET /expenses
 let _transferRecords = [];   // from GET /transfers
+let _debts           = [];   // from GET /debts
 let _currentUser     = null; // { id, username }
 
 // localStorage-only (planning features not yet on API)
 let budgets     = JSON.parse(localStorage.getItem('budgets'))     || [];
 let savingsGoals = JSON.parse(localStorage.getItem('savingsGoals')) || [];
-let debts       = JSON.parse(localStorage.getItem('debts'))       || [];
 
 let txType  = 'income';
 let txType2 = 'income';
@@ -57,6 +57,7 @@ async function initApp() {
     loadAccounts(),
     loadIncomeCategories(),
     loadExpenseCategories(),
+    loadDebts(),
   ]);
 
   await Promise.all([
@@ -115,6 +116,11 @@ async function loadTransferRecords() {
   if (ok) _transferRecords = data.data || [];
 }
 
+async function loadDebts() {
+  const { ok, data } = await api('/debts');
+  if (ok) _debts = data.data || [];
+}
+
 // ─── ACCOUNT DROPDOWNS ───────────────────────────────────────
 function populateAccountDropdowns() {
   const selects = ['quickAccount', 'account2', 'tfFrom', 'tfTo'];
@@ -147,6 +153,7 @@ function loadCategories2() {
     : '<option value="">No categories — add one first</option>';
 }
 
+// ─── NAVIGATION UTILITIES ───────────────────────────────────
 function setType(t) {
   txType = t;
   document.getElementById('incomeBtn').classList.toggle('active', t === 'income');
@@ -154,6 +161,7 @@ function setType(t) {
   loadCategories();
 }
 
+// ─── FORM SETTERS & SUBMITTERS ────────────────────────────────
 function setType2(t) {
   txType2 = t;
   document.getElementById('incomeBtn2').classList.toggle('active', t === 'income');
@@ -564,6 +572,12 @@ async function deleteCategory(id, type) {
   }
 }
 
+// ─── LOCAL STORAGE WRAPPER FOR PLANNING ──────────────────────
+function saveLocal() {
+  localStorage.setItem('budgets',      JSON.stringify(budgets));
+  localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+}
+
 function renderCategoryChips() {
   const ie = document.getElementById('incomeCategoryChips');
   const ee = document.getElementById('expenseCategoryChips');
@@ -765,6 +779,7 @@ function navTo(id) {
   showSection(id, btn);
 }
 
+// ─── PLANNED BUDGET / SAVINGS RETRIEVAL ──────────────────────
 function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -870,13 +885,7 @@ function filterTbody(id, q) {
   });
 }
 
-// ─── PLANNING (localStorage — untouched) ─────────────────────
-function saveLocal() {
-  localStorage.setItem('budgets',      JSON.stringify(budgets));
-  localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
-  localStorage.setItem('debts',        JSON.stringify(debts));
-}
-
+// ─── PLANNING (localStorage & API integrations) ───────────────
 function openPlanModal(kind, existing) {
   const isEdit = !!existing;
   let title = '', html = '';
@@ -920,11 +929,14 @@ function openPlanModal(kind, existing) {
 
   if (kind === 'debt') {
     title = isEdit ? 'Edit Debt' : 'Add Debt / Loan';
-    const accOpts = _accounts.map(a => `<option value="${a.id}" ${existing?.account_id==a.id?'selected':''}>${a.name}</option>`).join('');
+    const accOpts = _accounts.map(a => 
+      `<option value="${a.id}" ${existing?.account_id == a.id ? 'selected' : ''}>${a.name} ($${fmt(a.balance)})</option>`
+    ).join('');
+
     html = `<form onsubmit="submitPlan(event,'debt',${existing?.id||'null'})">
       <div class="form-group" style="margin-bottom:14px"><label class="form-label">Name / Lender</label><input name="name" class="form-input" value="${existing?.name||''}" placeholder="e.g. Bank loan" required></div>
       <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">Credit to account</label>
+        <label class="form-label">Credit loan to account</label>
         <select name="account_id" class="form-input">${accOpts}</select>
       </div>
       <div class="form-grid" style="margin-bottom:20px">
@@ -940,39 +952,113 @@ function openPlanModal(kind, existing) {
   openModal(title, html);
 }
 
-function submitPlan(e, kind, editId) {
+async function submitPlan(e, kind, editId) {
   e.preventDefault();
   const raw  = Object.fromEntries(new FormData(e.target));
   const numFields = { budget:['limit'], savings:['target','saved'], debt:['total','paid','interest_rate'] };
-  const data = { ...raw, id: editId || Date.now() };
+  const data = { ...raw };
+  if (!editId && kind !== 'debt') data.id = Date.now();
   (numFields[kind] || []).forEach(k => { if (raw[k] !== '') data[k] = parseFloat(raw[k]) || 0; });
 
-  const stores = { budget: budgets, savings: savingsGoals, debt: debts };
+  if (kind === 'debt') {
+    const totalAmount = parseFloat(raw.total) || 0;
+    const paidAmount = parseFloat(raw.paid) || 0;
+    const remainingAmount = Math.max(totalAmount - paidAmount, 0);
+
+    const dbPayload = {
+      creditor_name: raw.name.trim(),
+      total_amount: totalAmount,
+      remaining_amount: remainingAmount,
+      due_date: raw.due_date || null,
+      description: raw.description ? raw.description.trim() : '',
+      account_id: parseInt(raw.account_id) || null
+    };
+    
+    const endpoint = editId ? `/debts/${editId}` : '/debts';
+    const method = editId ? 'PUT' : 'POST';
+    
+    const { ok, data: resData } = await api(endpoint, {
+      method,
+      body: JSON.stringify(dbPayload),
+    });
+
+    if (ok) {
+      showToast(editId ? 'Updated!' : 'Created!');
+      closeModal();
+      await loadAccounts();
+      await loadDebts();
+      renderDebtSection();
+      renderDashWidgets();
+
+      // Check if pending expense can now be covered
+      if (_pendingExpense) {
+        const targetAcc = _accounts.find(a => a.id === _pendingExpense.account_id);
+        if (targetAcc && parseFloat(targetAcc.balance) >= parseFloat(_pendingExpense.amount)) {
+          const endpointTx = _pendingExpense._type === 'income' ? '/income' : '/expenses';
+          const { ok: txOk } = await api(endpointTx, {
+            method: 'POST',
+            body: JSON.stringify({
+              description: _pendingExpense.description,
+              amount: _pendingExpense.amount,
+              date: _pendingExpense.date,
+              account_id: _pendingExpense.account_id,
+              category_id: _pendingExpense.category_id
+            }),
+          });
+          if (txOk) {
+            showToast(`Pending transaction "${_pendingExpense.description}" processed successfully!`);
+            _pendingExpense = null;
+            const rem = document.getElementById('debtReminder');
+            if (rem) rem.style.display = 'none';
+            await loadAccounts();
+            await loadExpenseRecords();
+            await loadIncomeRecords();
+            render();
+          }
+        }
+      }
+    } else {
+      showToast(resData.message || 'Could not save debt properties', 'error');
+    }
+    return;
+  }
+
+  const stores = { budget: budgets, savings: savingsGoals };
   const arr    = stores[kind];
-  if (editId) { const i = arr.findIndex(x => x.id === editId); if (i >= 0) arr[i] = { ...arr[i], ...data }; }
+  if (editId) { const i = arr.findIndex(x => x.id === editId); if (i >= 0) arr[i] = { ...arr[i], ...data, id: editId }; }
   else        { arr.push(data); }
 
   saveLocal();
   if (kind === 'budget')  { renderBudgetSection();  renderDashWidgets(); }
   if (kind === 'savings') { renderSavingsSection(); renderDashWidgets(); }
-  if (kind === 'debt')    { renderDebtSection();    renderDashWidgets(); }
   closeModal();
   showToast(editId ? 'Updated!' : 'Created!');
 }
 
-function deletePlan(kind, id) {
+async function deletePlan(kind, id) {
+  if (kind === 'debt') {
+    const { ok, data } = await api(`/debts/${id}`, { method: 'DELETE' });
+    if (ok) {
+      showToast('Deleted');
+      await loadDebts();
+      renderDebtSection();
+      renderDashWidgets();
+    } else {
+      showToast(data.message || 'Could not delete debt item', 'error');
+    }
+    return;
+  }
+
   if (kind === 'budget')  budgets      = budgets.filter(x => x.id !== id);
   if (kind === 'savings') savingsGoals = savingsGoals.filter(x => x.id !== id);
-  if (kind === 'debt')    debts        = debts.filter(x => x.id !== id);
   saveLocal();
   if (kind === 'budget')  { renderBudgetSection();  renderDashWidgets(); }
   if (kind === 'savings') { renderSavingsSection(); renderDashWidgets(); }
-  if (kind === 'debt')    { renderDebtSection();    renderDashWidgets(); }
   showToast('Deleted');
 }
 
 function planCard(item, kind, badge, nums, pct, barCls, sub) {
-  const title = item.name || item.category || '—';
+  const title = item.creditor_name || item.name || item.category || '—';
   return `<div class="planning-card">
     <div class="planning-card-top">
       <span class="planning-card-title">${title}</span>${badge}
@@ -1029,26 +1115,26 @@ function renderSavingsSection() {
 
 function renderDebtSection() {
   const el        = document.getElementById('debt-cards');
-  const totalOwed = debts.reduce((s, d) => s + (parseFloat(d.total) || 0) - (parseFloat(d.paid) || 0), 0);
-  const totalPaid = debts.reduce((s, d) => s + (parseFloat(d.paid) || 0), 0);
+  const totalOwed = _debts.reduce((s, d) => s + (parseFloat(d.total_amount) || 0) - (parseFloat(d.remaining_amount) || 0), 0);
+  const totalPaid = _debts.reduce((s, d) => s + (parseFloat(d.total_amount) || 0) - (parseFloat(d.remaining_amount) || 0), 0);
   setEl('debtTotal', '$' + fmt(Math.max(totalOwed, 0)));
   setEl('debtPaid',  '$' + fmt(totalPaid));
-  el.innerHTML = debts.map(d => {
-    const paid  = parseFloat(d.paid) || 0;
-    const total = parseFloat(d.total) || 0;
+  el.innerHTML = _debts.map(d => {
+    const total = parseFloat(d.total_amount) || 0;
+    const rem   = parseFloat(d.remaining_amount) || 0;
+    const paid  = Math.max(total - rem, 0);
     const pct   = total > 0 ? Math.min(Math.round(paid / total * 100), 100) : 0;
     const done  = pct >= 100;
-    const rem   = total - paid;
     const sc    = done ? 'ok' : pct >= 50 ? 'warn' : 'danger';
     const accName = _accounts.find(a => a.id == d.account_id)?.name || '—';
     return planCard(d, 'debt',
-      `<span class="planning-badge ${sc}">${done?'Paid off':pct+'% paid'}</span>`,
+      `<span class="planning-badge ${sc}">${done ? 'Paid off' : pct + '% paid'}</span>`,
       `<span style="color:var(--green)">$${fmt(paid)} paid</span><span style="color:var(--text-muted)">of $${fmt(total)}</span>`,
       pct, done ? 'ok' : 'danger',
-      `${done?'Fully paid!':'$'+fmt(rem)+' left'}${d.interest_rate?' · '+d.interest_rate+'%':''}${d.due_date?' · Due '+d.due_date:''} · Credited to ${accName}`
+      `${done ? 'Fully paid!' : '$' + fmt(rem) + ' left'}${d.interest_rate ? ' · ' + d.interest_rate + '%' : ''}${d.due_date ? ' · Due ' + d.due_date : ''} · Credited to ${accName}`
     );
   }).join('');
-  document.getElementById('debt-empty').style.display = debts.length ? 'none' : 'block';
+  document.getElementById('debt-empty').style.display = _debts.length ? 'none' : 'block';
 }
 
 function renderDashWidgets() {
@@ -1068,7 +1154,7 @@ function renderDashWidgets() {
   }).join('') : `<div class="widget-empty">No goals. <button class="inline-link" onclick="navTo('savings')">Create →</button></div>`;
 
   const dl = document.getElementById('dashDebtList');
-  dl.innerHTML = debts.length ? debts.slice(0, 3).map(d => {
+  dl.innerHTML = _debts.length ? _debts.slice(0, 3).map(d => {
     const rem = (parseFloat(d.total) || 0) - (parseFloat(d.paid) || 0);
     const pct = d.total > 0 ? Math.min(Math.round(((d.total - rem) / d.total) * 100), 100) : 0;
     return `<div class="widget-row"><span class="widget-label">${d.name}</span><div class="prog-track sm"><div class="prog-bar danger" style="width:${Math.max(100-pct,0)}%"></div></div><span class="widget-val">$${fmt(rem)} left</span></div>`;
