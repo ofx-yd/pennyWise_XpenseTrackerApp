@@ -839,6 +839,69 @@ function showToast(msg, kind = 'success') {
   t._t = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+function exportRecordsToCSV() {
+  // Identify the active section
+  const activeEl = document.querySelector('.section.active');
+  if (!activeEl) return;
+  
+  const activeId = activeEl.id;
+  let rawData = [];
+  let fileName = 'PennyWise_Export.csv';
+  let headers = ["Description", "Account", "Category", "Amount", "Date"];
+
+  // Logic to select the correct array
+  if (activeId === 'section-income') {
+    rawData = _incomeRecords;
+    fileName = `Income_${getMonthFilter() || 'All'}.csv`;
+  } else if (activeId === 'section-expenses') {
+    rawData = _expenseRecords;
+    fileName = `Expenses_${getMonthFilter() || 'All'}.csv`;
+  } else if (activeId === 'section-transfers') {
+    rawData = _transferRecords;
+    fileName = `Transfers_${getMonthFilter() || 'All'}.csv`;
+    headers = ["Note", "From Account", "To Account", "Amount", "Date"];
+  }
+
+  // Apply your month filter
+  const data = filterByMonth(rawData);
+
+  if (!data || data.length === 0) {
+    showToast("No records found for current month", "error");
+    return;
+  }
+
+  const rows = data.map(r => {
+    if (activeId === 'section-transfers') {
+      return [
+        `"${r.description || '—'}"`,
+        `"${r.from_account || '—'}"`,
+        `"${r.to_account || '—'}"`,
+        r.amount,
+        r.date
+      ];
+    }
+    return [
+      `"${r.description || '—'}"`,
+      `"${r.account || '—'}"`,
+      `"${r.category || '—'}"`,
+      r.amount,
+      r.date
+    ];
+  });
+
+  const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  showToast(`Exported ${data.length} records`);
+}
+
 // ─── MODAL ────────────────────────────────────────────────────
 function openModal(title, html) {
   setEl('modalTitle', title);
