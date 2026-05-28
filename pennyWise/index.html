@@ -275,15 +275,17 @@
         <div class="chart-wrap"><div class="chart-label">Expenses by Category</div><div class="cat-list" id="expenseCatBreakdown"></div><div class="chart-empty" id="expenseCatEmpty" style="display:none;padding:20px 0;text-align:center">No data</div></div>
       </div>
     </div>
-
-    <!-- INCOME -->
+<!-- INCOME -->
     <div class="section" id="section-income">
       <div class="section-top-bar">
         <div class="section-stats">
           <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val green" id="incomeTotal">$0.00</span></div>
           <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="incomeCount">0</span></div>
         </div>
-        <button class="btn-add" onclick="openTxModal('income')"><i class="fa-solid fa-plus"></i> Add Income</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-export" onclick="exportRecordsToCSV()"><i class="fa-solid fa-file-export"></i> Export CSV</button>
+          <button class="btn-add" onclick="openTxModal('income')"><i class="fa-solid fa-plus"></i> Add Income</button>
+        </div>
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Income Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('income-tbody',this.value)"></div>
@@ -293,41 +295,80 @@
         </div>
       </div>
     </div>
+<!-- EXPENSES -->
+<div class="section" id="section-expenses">
+  <div class="section-top-bar">
+    <div class="section-stats">
+      <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val red" id="expenseTotal">$0.00</span></div>
+      <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="expenseCount">0</span></div>
+    </div>
+    
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-export" onclick="exportRecordsToCSV()">
+        <i class="fa-solid fa-file-export"></i> Export CSV
+      </button>
+      <button class="btn-add" onclick="openTxModal('expense')">
+        <i class="fa-solid fa-plus"></i> Add Expense
+      </button>
+    </div>
+  </div>
 
-    <!-- EXPENSES -->
-    <div class="section" id="section-expenses">
-      <div class="section-top-bar">
-        <div class="section-stats">
-          <div class="mini-stat"><span class="mini-label">This period</span><span class="mini-val red" id="expenseTotal">$0.00</span></div>
-          <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="expenseCount">0</span></div>
-        </div>
-        <button class="btn-add" onclick="openTxModal('expense')"><i class="fa-solid fa-plus"></i> Add Expense</button>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Expense Entries</span><input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody',this.value)"></div>
-        <div class="table-wrap">
-          <table class="data-table"><thead><tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="expense-tbody"></tbody></table>
-          <div class="empty-state" id="expense-empty" style="display:none"><div class="empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div><div class="empty-title">No expenses yet</div></div>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Expense Entries</span>
+      <input class="search-input" placeholder="Search…" oninput="filterTbody('expense-tbody',this.value)">
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Description</th><th>Account</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody id="expense-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="expense-empty" style="display:none">
+        <div class="empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+        <div class="empty-title">No expenses yet</div>
       </div>
     </div>
+  </div>
+</div>
+<!-- TRANSFERS -->
+<div class="section" id="section-transfers">
+  <div class="section-top-bar">
+    <div class="section-stats">
+      <div class="mini-stat"><span class="mini-label">Total</span><span class="mini-val blue" id="transferTotal">$0.00</span></div>
+      <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="transferCount">0</span></div>
+    </div>
+    
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-export" onclick="exportRecordsToCSV()">
+        <i class="fa-solid fa-file-export"></i> Export CSV
+      </button>
+      <button class="btn-add" onclick="showSection('accounts')">
+        <i class="fa-solid fa-right-left"></i> New Transfer
+      </button>
+    </div>
+  </div>
 
-    <!-- TRANSFERS -->
-    <div class="section" id="section-transfers">
-      <div class="section-top-bar">
-        <div class="section-stats">
-          <div class="mini-stat"><span class="mini-label">Total</span><span class="mini-val blue" id="transferTotal">$0.00</span></div>
-          <div class="mini-stat"><span class="mini-label">Entries</span><span class="mini-val" id="transferCount">0</span></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Transfer History</span><input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody',this.value)"></div>
-        <div class="table-wrap">
-          <table class="data-table"><thead><tr><th>Note</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="transfer-tbody"></tbody></table>
-          <div class="empty-state" id="transfer-empty" style="display:none"><div class="empty-icon"><i class="fa-solid fa-right-left"></i></div><div class="empty-title">No transfers yet</div></div>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Transfer History</span>
+      <input class="search-input" placeholder="Search…" oninput="filterTbody('transfer-tbody',this.value)">
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Note</th><th>From</th><th>To</th><th>Amount</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody id="transfer-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="transfer-empty" style="display:none">
+        <div class="empty-icon"><i class="fa-solid fa-right-left"></i></div>
+        <div class="empty-title">No transfers yet</div>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- BUDGET -->
     <div class="section" id="section-budget">
