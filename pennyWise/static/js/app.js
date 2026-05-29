@@ -840,46 +840,15 @@ function showToast(msg, kind = 'success') {
 
 // ─── CSV EXPORT ───────────────────────────────────────────────
 function exportRecordsToCSV() {
-  const activeEl = document.querySelector('.section.active');
-  if (!activeEl) return;
+    // We point the browser directly to the PHP export route.
+    // The backend handles the database query and file generation.
+    const exportUrl = `${API_BASE}/export-records`;
 
-  const activeId = activeEl.id;
-  let rawData = [];
-  let fileName = 'PennyWise_Export.csv';
-  let headers  = ['Description', 'Account', 'Category', 'Amount', 'Date'];
+    // Note: Since this is a file download, we use window.location
+    // Browser cookies/session will be sent automatically.
+    window.location.href = exportUrl;
 
-  if (activeId === 'section-income') {
-    rawData  = _incomeRecords;
-    fileName = `Income_${getMonthFilter() || 'All'}.csv`;
-  } else if (activeId === 'section-expenses') {
-    rawData  = _expenseRecords;
-    fileName = `Expenses_${getMonthFilter() || 'All'}.csv`;
-  } else if (activeId === 'section-transfers') {
-    rawData  = _transferRecords;
-    fileName = `Transfers_${getMonthFilter() || 'All'}.csv`;
-    headers  = ['Note', 'From Account', 'To Account', 'Amount', 'Date'];
-  }
-
-  const data = filterByMonth(rawData);
-  if (!data || data.length === 0) { showToast('No records found for current filter', 'error'); return; }
-
-  const rows = data.map(r => {
-    if (activeId === 'section-transfers') {
-      return [`"${r.description || '—'}"`, `"${r.from_account || '—'}"`, `"${r.to_account || '—'}"`, r.amount, r.date];
-    }
-    return [`"${r.description || '—'}"`, `"${r.account || '—'}"`, `"${r.category || '—'}"`, r.amount, r.date];
-  });
-
-  const csvContent = [headers, ...rows].map(e => e.join(',')).join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast(`Exported ${data.length} records`);
+    showToast("Preparing your export...");
 }
 
 // ─── MODAL ────────────────────────────────────────────────────
