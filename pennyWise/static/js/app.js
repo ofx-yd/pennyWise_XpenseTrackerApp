@@ -10,11 +10,11 @@ let _incomeRecords   = [];   // from GET /income
 let _expenseRecords  = [];   // from GET /expenses
 let _transferRecords = [];   // from GET /transfers
 let _debts           = [];   // from GET /debts
+let _savingsGoals    = [];   // from GET /savings-goals
 let _currentUser     = null; // { id, username }
 
-// budgets now live on the API; savingsGoals remain localStorage-only
-let budgets      = [];
-let savingsGoals = JSON.parse(localStorage.getItem('savingsGoals')) || [];
+// budgets and savingsGoals now live on the API
+let budgets = [];
 
 let txType  = 'income';
 let txType2 = 'income';
@@ -59,6 +59,7 @@ async function initApp() {
     loadExpenseCategories(),
     loadDebts(),
     loadBudgets(),
+    loadSavingsGoals(),
   ]);
 
   await Promise.all([
@@ -70,8 +71,8 @@ async function initApp() {
   render();
   renderDashWidgets();
 
-  document.getElementById('date').value  = today();
-  document.getElementById('date2').value = today();
+  document.getElementById('date').value   = today();
+  document.getElementById('date2').value  = today();
   document.getElementById('tfDate').value = today();
   document.getElementById('monthFilter').addEventListener('change', () => {
     renderIncomeSection();
@@ -127,6 +128,11 @@ async function loadBudgets() {
   if (ok) budgets = data.data || [];
 }
 
+async function loadSavingsGoals() {
+  const { ok, data } = await api('/savings-goals');
+  if (ok) _savingsGoals = data.data || [];
+}
+
 // ─── ACCOUNT DROPDOWNS ───────────────────────────────────────
 function populateAccountDropdowns() {
   const selects = ['quickAccount', 'account2', 'tfFrom', 'tfTo'];
@@ -137,7 +143,6 @@ function populateAccountDropdowns() {
     el.innerHTML = _accounts.length
       ? _accounts.map(a => `<option value="${a.id}">${a.name} ($${fmt(a.balance)})</option>`).join('')
       : '<option value="">No accounts — create one first</option>';
-    // Restore selection if still valid
     if (current && [...el.options].some(o => o.value === current)) el.value = current;
   });
 }
@@ -167,7 +172,6 @@ function setType(t) {
   loadCategories();
 }
 
-// ─── FORM SETTERS & SUBMITTERS ────────────────────────────────
 function setType2(t) {
   txType2 = t;
   document.getElementById('incomeBtn2').classList.toggle('active', t === 'income');
@@ -177,7 +181,7 @@ function setType2(t) {
 
 // ─── MONTH FILTER ─────────────────────────────────────────────
 function getMonthFilter() {
-  return document.getElementById('monthFilter').value; // e.g. "2026-05" or ""
+  return document.getElementById('monthFilter').value;
 }
 
 function filterByMonth(records) {
@@ -186,13 +190,12 @@ function filterByMonth(records) {
   return records.filter(r => r.date && r.date.startsWith(m));
 }
 
-// ─── ACCOUNT STRIP (dashboard mini cards) ────────────────────
+// ─── ACCOUNT STRIP ────────────────────────────────────────────
 function renderAccountStrip() {
   const strip = document.getElementById('accountStrip');
   const total = _accounts.reduce((s, a) => s + parseFloat(a.balance || 0), 0);
   setEl('totalBal', '$' + fmt(total));
 
-  // Remove old dynamic cards, keep the Net Worth card
   strip.querySelectorAll('.acc-mini:not(.total-acc)').forEach(el => el.remove());
 
   _accounts.forEach(a => {
@@ -206,7 +209,6 @@ function renderAccountStrip() {
         <div class="acc-mini-name">${a.name}</div>
         <div class="acc-mini-bal">$${fmt(a.balance)}</div>
       </div>`;
-    // Insert before the Net Worth card
     strip.insertBefore(div, strip.querySelector('.total-acc'));
   });
 }
@@ -221,7 +223,7 @@ function renderAccountsSection() {
   setEl('accountsCount', _accounts.length);
 
   if (!_accounts.length) {
-    grid.innerHTML  = '';
+    grid.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
@@ -338,10 +340,10 @@ async function submitAccountTransfer() {
   const date   = document.getElementById('tfDate').value;
   const desc   = document.getElementById('tfNote').value.trim();
 
-  if (!fromId || !toId)  { showToast('Select both accounts', 'error'); return; }
-  if (fromId === toId)   { showToast('Choose different accounts', 'error'); return; }
+  if (!fromId || !toId)       { showToast('Select both accounts', 'error'); return; }
+  if (fromId === toId)        { showToast('Choose different accounts', 'error'); return; }
   if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
-  if (!date)             { showToast('Choose a date', 'error'); return; }
+  if (!date)                  { showToast('Choose a date', 'error'); return; }
 
   const { ok, data } = await api('/transfers', {
     method: 'POST',
@@ -362,7 +364,7 @@ async function submitAccountTransfer() {
 
 // ─── TRANSACTION MODAL ────────────────────────────────────────
 async function openTxModal(type, existing, defaultAccId) {
-  const cats = type === 'income' ? _incomeCategories : _expenseCategories;
+  const cats   = type === 'income' ? _incomeCategories : _expenseCategories;
   const accVal = existing?.account_id || defaultAccId || (_accounts[0]?.id || '');
 
   const accOptions = _accounts.map(a =>
@@ -406,10 +408,10 @@ async function openTxModal(type, existing, defaultAccId) {
 }
 
 async function submitTx(type, editId) {
-  const desc       = document.getElementById('txDesc').value.trim();
-  const amount     = parseFloat(document.getElementById('txAmount').value);
-  const date       = document.getElementById('txDate').value;
-  const account_id = parseInt(document.getElementById('txAccount').value);
+  const desc        = document.getElementById('txDesc').value.trim();
+  const amount      = parseFloat(document.getElementById('txAmount').value);
+  const date        = document.getElementById('txDate').value;
+  const account_id  = parseInt(document.getElementById('txAccount').value);
   const category_id = parseInt(document.getElementById('txCategory').value);
 
   if (!desc || !amount || !date || !account_id || !category_id) {
@@ -435,7 +437,7 @@ async function submitTx(type, editId) {
     } else {
       await loadExpenseRecords();
       renderExpenseSection();
-      await loadBudgets(); 
+      await loadBudgets();
     }
     render();
     renderDashWidgets();
@@ -500,7 +502,7 @@ document.getElementById('form').addEventListener('submit', async e => {
     setType('income');
     await loadAccounts();
     if (txType === 'income') { await loadIncomeRecords(); }
-    else                     { await loadExpenseRecords(); await loadBudgets();}
+    else                     { await loadExpenseRecords(); await loadBudgets(); }
     render();
     renderDashWidgets();
   } else {
@@ -583,10 +585,9 @@ async function deleteCategory(id, type) {
   }
 }
 
-// ─── LOCAL STORAGE WRAPPER FOR PLANNING ──────────────────────
+// ─── LOCAL STORAGE WRAPPER ───────────────────────────────────
 function saveLocal() {
-  // budgets now live on the API — only savingsGoals remain local
-  localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+  // everything now lives on the API — nothing left to save locally
 }
 
 function renderCategoryChips() {
@@ -709,7 +710,6 @@ function render() {
   setEl('expense',  fmt(totalExp));
   setEl('expense2', fmt(totalExp));
 
-  // Combine income and expense for recent list, sorted by date desc
   const combined = [
     ...incFiltered.map(r => ({ ...r, _type: 'income' })),
     ...expFiltered.map(r => ({ ...r, _type: 'expense' })),
@@ -746,10 +746,10 @@ function updateCharts() {
   const hasI = Object.keys(iT).length > 0;
   const hasE = Object.keys(eT).length > 0;
 
-  document.getElementById('incomeChart').style.display      = hasI ? 'block' : 'none';
-  document.getElementById('incomeChartEmpty').style.display = hasI ? 'none'  : 'block';
-  document.getElementById('expenseChart').style.display     = hasE ? 'block' : 'none';
-  document.getElementById('expenseChartEmpty').style.display = hasE ? 'none' : 'block';
+  document.getElementById('incomeChart').style.display       = hasI ? 'block' : 'none';
+  document.getElementById('incomeChartEmpty').style.display  = hasI ? 'none'  : 'block';
+  document.getElementById('expenseChart').style.display      = hasE ? 'block' : 'none';
+  document.getElementById('expenseChartEmpty').style.display = hasE ? 'none'  : 'block';
 
   if (incomeChart)  incomeChart.destroy();
   if (expenseChart) expenseChart.destroy();
@@ -790,7 +790,6 @@ function navTo(id) {
   showSection(id, btn);
 }
 
-// ─── PLANNED BUDGET / SAVINGS RETRIEVAL ──────────────────────
 function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -839,66 +838,47 @@ function showToast(msg, kind = 'success') {
   t._t = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// ─── CSV EXPORT ───────────────────────────────────────────────
 function exportRecordsToCSV() {
-  // Identify the active section
   const activeEl = document.querySelector('.section.active');
   if (!activeEl) return;
-  
+
   const activeId = activeEl.id;
   let rawData = [];
   let fileName = 'PennyWise_Export.csv';
-  let headers = ["Description", "Account", "Category", "Amount", "Date"];
+  let headers  = ['Description', 'Account', 'Category', 'Amount', 'Date'];
 
-  // Logic to select the correct array
   if (activeId === 'section-income') {
-    rawData = _incomeRecords;
+    rawData  = _incomeRecords;
     fileName = `Income_${getMonthFilter() || 'All'}.csv`;
   } else if (activeId === 'section-expenses') {
-    rawData = _expenseRecords;
+    rawData  = _expenseRecords;
     fileName = `Expenses_${getMonthFilter() || 'All'}.csv`;
   } else if (activeId === 'section-transfers') {
-    rawData = _transferRecords;
+    rawData  = _transferRecords;
     fileName = `Transfers_${getMonthFilter() || 'All'}.csv`;
-    headers = ["Note", "From Account", "To Account", "Amount", "Date"];
+    headers  = ['Note', 'From Account', 'To Account', 'Amount', 'Date'];
   }
 
-  // Apply your month filter
   const data = filterByMonth(rawData);
-
-  if (!data || data.length === 0) {
-    showToast("No records found for current month", "error");
-    return;
-  }
+  if (!data || data.length === 0) { showToast('No records found for current filter', 'error'); return; }
 
   const rows = data.map(r => {
     if (activeId === 'section-transfers') {
-      return [
-        `"${r.description || '—'}"`,
-        `"${r.from_account || '—'}"`,
-        `"${r.to_account || '—'}"`,
-        r.amount,
-        r.date
-      ];
+      return [`"${r.description || '—'}"`, `"${r.from_account || '—'}"`, `"${r.to_account || '—'}"`, r.amount, r.date];
     }
-    return [
-      `"${r.description || '—'}"`,
-      `"${r.account || '—'}"`,
-      `"${r.category || '—'}"`,
-      r.amount,
-      r.date
-    ];
+    return [`"${r.description || '—'}"`, `"${r.account || '—'}"`, `"${r.category || '—'}"`, r.amount, r.date];
   });
 
-  const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+  const csvContent = [headers, ...rows].map(e => e.join(',')).join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", fileName);
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  
   showToast(`Exported ${data.length} records`);
 }
 
@@ -945,7 +925,7 @@ function goToDebtTab() {
   closeDebtDialog();
   if (_pendingExpense) {
     const rem = document.getElementById('debtReminder');
-    setEl('debtReminderSub', `You were trying to add "${ _pendingExpense.description}" ($${fmt(_pendingExpense.amount)}). Add a loan below to credit that account, then retry.`);
+    setEl('debtReminderSub', `You were trying to add "${_pendingExpense.description}" ($${fmt(_pendingExpense.amount)}). Add a loan below to credit that account, then retry.`);
     if (rem) rem.style.display = 'flex';
   }
   navTo('debt');
@@ -959,7 +939,7 @@ function filterTbody(id, q) {
   });
 }
 
-// ─── PLANNING (localStorage & API integrations) ───────────────
+// ─── PLANNING ─────────────────────────────────────────────────
 function openPlanModal(kind, existing) {
   const isEdit = !!existing;
   let title = '', html = '';
@@ -1009,15 +989,69 @@ function openPlanModal(kind, existing) {
 
   if (kind === 'savings') {
     title = isEdit ? 'Edit Goal' : 'New Savings Goal';
-    html = `<form onsubmit="submitPlan(event,'savings',${existing?.id||'null'})">
-      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Goal name</label><input name="name" class="form-input" value="${existing?.name||''}" placeholder="e.g. Emergency fund" required></div>
-      <div class="form-grid" style="margin-bottom:14px">
-        <div class="form-group"><label class="form-label">Target ($)</label><input name="target" type="number" class="form-input" value="${existing?.target||''}" placeholder="0.00" step="0.01" min="0" required></div>
-        <div class="form-group"><label class="form-label">Saved so far ($)</label><input name="saved" type="number" class="form-input" value="${existing?.saved||0}" placeholder="0.00" step="0.01" min="0"></div>
+
+    if (isEdit) {
+      html = `<form onsubmit="submitPlan(event,'savings',${existing.id})">
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Goal name</label>
+          <input name="name" class="form-input" value="${existing.name || ''}" required>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Target ($)</label>
+          <input name="target_amount" type="number" class="form-input" value="${existing.target_amount || ''}" placeholder="0.00" step="0.01" min="0" required>
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Target date (optional)</label>
+          <input name="target_date" type="date" class="form-input" value="${existing.target_date || ''}">
+        </div>
+        <button type="submit" class="btn-submit">Save Changes</button>
+      </form>
+      <hr style="margin:20px 0;border-color:var(--border)">
+      <div style="margin-bottom:12px;font-weight:600;font-size:14px">Add Contribution</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Account</label>
+        <select id="contribAccount" class="form-input">
+          ${_accounts.map(a => `<option value="${a.id}">${a.name} ($${fmt(a.balance)})</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group" style="margin-bottom:20px"><label class="form-label">Target date (optional)</label><input name="target_date" type="date" class="form-input" value="${existing?.target_date||''}"></div>
-      <button type="submit" class="btn-submit">${isEdit?'Save':'Create Goal'}</button>
-    </form>`;
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label">Amount ($)</label>
+          <input id="contribAmount" type="number" class="form-input" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input id="contribDate" type="date" class="form-input" value="${today()}">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label class="form-label">Note (optional)</label>
+        <input id="contribNote" class="form-input" placeholder="e.g. Monthly deposit">
+      </div>
+      <button class="btn-submit" onclick="submitContribution(${existing.id})">Add Contribution</button>`;
+    } else {
+      html = `<form onsubmit="submitPlan(event,'savings',null)">
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Goal name</label>
+          <input name="name" class="form-input" placeholder="e.g. Emergency fund" required>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Target ($)</label>
+            <input name="target_amount" type="number" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Saved so far ($)</label>
+            <input name="current_amount" type="number" class="form-input" placeholder="0.00" step="0.01" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Target date (optional)</label>
+          <input name="target_date" type="date" class="form-input">
+        </div>
+        <button type="submit" class="btn-submit">Create Goal</button>
+      </form>`;
+    }
   }
 
   if (kind === 'debt') {
@@ -1030,19 +1064,19 @@ function openPlanModal(kind, existing) {
       ? fmt((parseFloat(existing.total_amount) || 0) - (parseFloat(existing.remaining_amount) || 0))
       : '';
 
-    html = `<form onsubmit="submitPlan(event,'debt',${existing?.id||'null'})">
-      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Name / Lender</label><input name="name" class="form-input" value="${existing?.creditor_name||''}" placeholder="e.g. Bank loan" required></div>
+    html = `<form onsubmit="submitPlan(event,'debt',${existing?.id || 'null'})">
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Name / Lender</label><input name="name" class="form-input" value="${existing?.creditor_name || ''}" placeholder="e.g. Bank loan" required></div>
       <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Credit loan to account</label>
         <select name="account_id" class="form-input">${accOpts}</select>
       </div>
       <div class="form-grid" style="margin-bottom:20px">
-        <div class="form-group"><label class="form-label">Borrowed amount ($)</label><input name="total" type="number" class="form-input" value="${existing?.total_amount||''}" placeholder="0.00" step="0.01" min="0" required></div>
+        <div class="form-group"><label class="form-label">Borrowed amount ($)</label><input name="total" type="number" class="form-input" value="${existing?.total_amount || ''}" placeholder="0.00" step="0.01" min="0" required></div>
         <div class="form-group"><label class="form-label">Amount paid back ($)</label><input name="paid" type="number" class="form-input" value="${paidVal}" placeholder="0.00" step="0.01" min="0"></div>
-        <div class="form-group"><label class="form-label">Interest rate (%)</label><input name="interest_rate" type="number" class="form-input" value="${existing?.interest_rate||''}" placeholder="e.g. 12.5" step="0.01" min="0"></div>
-        <div class="form-group"><label class="form-label">Due date (optional)</label><input name="due_date" type="date" class="form-input" value="${existing?.due_date||''}"></div>
+        <div class="form-group"><label class="form-label">Interest rate (%)</label><input name="interest_rate" type="number" class="form-input" value="${existing?.interest_rate || ''}" placeholder="e.g. 12.5" step="0.01" min="0"></div>
+        <div class="form-group"><label class="form-label">Due date (optional)</label><input name="due_date" type="date" class="form-input" value="${existing?.due_date || ''}"></div>
       </div>
-      <button type="submit" class="btn-submit">${isEdit?'Save':'Add Debt & Credit Balance'}</button>
+      <button type="submit" class="btn-submit">${isEdit ? 'Save' : 'Add Debt & Credit Balance'}</button>
     </form>`;
   }
 
@@ -1081,6 +1115,34 @@ async function submitPlan(e, kind, editId) {
     return;
   }
 
+  if (kind === 'savings') {
+    const payload = {
+      name:           raw.name.trim(),
+      target_amount:  parseFloat(raw.target_amount) || 0,
+      current_amount: parseFloat(raw.current_amount) || 0,
+      target_date:    raw.target_date || null,
+    };
+
+    const endpoint = editId ? `/savings-goals/${editId}` : '/savings-goals';
+    const method   = editId ? 'PUT' : 'POST';
+
+    const { ok, data: resData } = await api(endpoint, {
+      method,
+      body: JSON.stringify(payload),
+    });
+
+    if (ok) {
+      showToast(editId ? 'Goal updated!' : 'Goal created!');
+      closeModal();
+      await loadSavingsGoals();
+      renderSavingsSection();
+      renderDashWidgets();
+    } else {
+      showToast(resData.message || 'Could not save goal', 'error');
+    }
+    return;
+  }
+
   if (kind === 'debt') {
     const totalAmount     = parseFloat(raw.total) || 0;
     const paidAmount      = parseFloat(raw.paid) || 0;
@@ -1111,7 +1173,6 @@ async function submitPlan(e, kind, editId) {
       renderDebtSection();
       renderDashWidgets();
 
-      // Check if pending expense can now be covered
       if (_pendingExpense) {
         const targetAcc = _accounts.find(a => a.id === _pendingExpense.account_id);
         if (targetAcc && parseFloat(targetAcc.balance) >= parseFloat(_pendingExpense.amount)) {
@@ -1139,25 +1200,37 @@ async function submitPlan(e, kind, editId) {
         }
       }
     } else {
-      showToast(resData.message || 'Could not save debt properties', 'error');
+      showToast(resData.message || 'Could not save debt', 'error');
     }
     return;
   }
+}
 
-  // ── savings (localStorage) ────────────────────────────────
-  const numFields = { savings: ['target', 'saved'] };
-  const data = { ...raw };
-  if (!editId) data.id = Date.now();
-  (numFields[kind] || []).forEach(k => { if (raw[k] !== '') data[k] = parseFloat(raw[k]) || 0; });
+// ─── SAVINGS CONTRIBUTION ────────────────────────────────────
+async function submitContribution(goalId) {
+  const account_id = parseInt(document.getElementById('contribAccount').value);
+  const amount     = parseFloat(document.getElementById('contribAmount').value);
+  const date       = document.getElementById('contribDate').value;
+  const note       = document.getElementById('contribNote').value.trim();
 
-  const arr = savingsGoals;
-  if (editId) { const i = arr.findIndex(x => x.id === editId); if (i >= 0) arr[i] = { ...arr[i], ...data, id: editId }; }
-  else        { arr.push(data); }
+  if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
+  if (!date)                  { showToast('Choose a date', 'error'); return; }
 
-  saveLocal();
-  if (kind === 'savings') { renderSavingsSection(); renderDashWidgets(); }
-  closeModal();
-  showToast(editId ? 'Updated!' : 'Created!');
+  const { ok, data } = await api(`/savings-goals/${goalId}/contributions`, {
+    method: 'POST',
+    body: JSON.stringify({ account_id, amount, date, note: note || null }),
+  });
+
+  if (ok) {
+    showToast('Contribution added!');
+    closeModal();
+    await loadAccounts();
+    await loadSavingsGoals();
+    renderSavingsSection();
+    renderDashWidgets();
+  } else {
+    showToast(data.message || 'Could not add contribution', 'error');
+  }
 }
 
 async function deletePlan(kind, id) {
@@ -1174,6 +1247,19 @@ async function deletePlan(kind, id) {
     return;
   }
 
+  if (kind === 'savings') {
+    const { ok, data } = await api(`/savings-goals/${id}`, { method: 'DELETE' });
+    if (ok) {
+      showToast('Goal deleted');
+      await loadSavingsGoals();
+      renderSavingsSection();
+      renderDashWidgets();
+    } else {
+      showToast(data.message || 'Could not delete goal', 'error');
+    }
+    return;
+  }
+
   if (kind === 'debt') {
     const { ok, data } = await api(`/debts/${id}`, { method: 'DELETE' });
     if (ok) {
@@ -1186,11 +1272,6 @@ async function deletePlan(kind, id) {
     }
     return;
   }
-
-  if (kind === 'savings') savingsGoals = savingsGoals.filter(x => x.id !== id);
-  saveLocal();
-  if (kind === 'savings') { renderSavingsSection(); renderDashWidgets(); }
-  showToast('Deleted');
 }
 
 function planCard(item, kind, badge, nums, pct, barCls, sub) {
@@ -1240,21 +1321,25 @@ function renderBudgetSection() {
 
 function renderSavingsSection() {
   const el    = document.getElementById('savings-cards');
-  const total = savingsGoals.reduce((s, g) => s + (parseFloat(g.saved) || 0), 0);
+  const total = _savingsGoals.reduce((s, g) => s + (parseFloat(g.current_amount) || 0), 0);
   setEl('savingsTotal', '$' + fmt(total));
-  setEl('savingsCount', savingsGoals.length);
+  setEl('savingsCount', _savingsGoals.length);
   setEl('dashSaved',    fmt(total));
-  el.innerHTML = savingsGoals.map(g => {
-    const saved  = parseFloat(g.saved) || 0;
-    const target = parseFloat(g.target) || 0;
-    const pct    = target > 0 ? Math.min(Math.round(saved / target * 100), 100) : 0;
+
+  el.innerHTML = _savingsGoals.map(g => {
+    const saved  = parseFloat(g.current_amount) || 0;
+    const target = parseFloat(g.target_amount) || 0;
+    const pct    = parseFloat(g.progress_percent) || 0;
+    const done   = !!g.is_completed;
     return planCard(g, 'savings',
-      `<span class="planning-badge ${pct>=100?'ok':'info'}">${pct>=100?'Complete':pct+'%'}</span>`,
+      `<span class="planning-badge ${done ? 'ok' : 'info'}">${done ? 'Complete' : pct + '%'}</span>`,
       `<span style="color:var(--gold)">$${fmt(saved)} saved</span><span style="color:var(--text-muted)">of $${fmt(target)}</span>`,
-      pct, 'gold-bar', g.target_date ? `Target: ${g.target_date}` : 'No target date'
+      pct, 'gold-bar',
+      `${done ? 'Goal reached!' : '$' + fmt(g.remaining_amount) + ' to go'}${g.target_date ? ' · Target: ' + g.target_date : ''}`
     );
   }).join('');
-  document.getElementById('savings-empty').style.display = savingsGoals.length ? 'none' : 'block';
+
+  document.getElementById('savings-empty').style.display = _savingsGoals.length ? 'none' : 'block';
 }
 
 function renderDebtSection() {
@@ -1292,8 +1377,8 @@ function renderDashWidgets() {
   }).join('') : `<div class="widget-empty">No budgets. <button class="inline-link" onclick="navTo('budget')">Add →</button></div>`;
 
   const sl = document.getElementById('dashSavingsList');
-  sl.innerHTML = savingsGoals.length ? savingsGoals.slice(0, 3).map(g => {
-    const pct = g.target > 0 ? Math.min(Math.round((g.saved / g.target) * 100), 100) : 0;
+  sl.innerHTML = _savingsGoals.length ? _savingsGoals.slice(0, 3).map(g => {
+    const pct = parseFloat(g.progress_percent) || 0;
     return `<div class="widget-row"><span class="widget-label">${g.name}</span><div class="prog-track sm"><div class="prog-bar gold-bar" style="width:${pct}%"></div></div><span class="widget-val">${pct}%</span></div>`;
   }).join('') : `<div class="widget-empty">No goals. <button class="inline-link" onclick="navTo('savings')">Create →</button></div>`;
 
